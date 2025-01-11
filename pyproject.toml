@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "llm-rpg"
+version = "0.1.0"
+description = ""
+authors = ["WoutVossen <vossen.w@hotmail.com>"]
+readme = "README.md"
+packages = [{include = "llm_rpg", from = "src"}]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.11"
+openai = "^1.57.1"
+python-dotenv = "^1.0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
