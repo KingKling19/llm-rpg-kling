@@ -2,26 +2,23 @@ from typing import Literal
 from pydantic import BaseModel
 
 
-class BattleAction(BaseModel):
-    user: Literal["hero", "enemy"]
-    action_description: str
+class BattleEvent(BaseModel):
+    character_name: str
+    proposed_action: str
+    effect_description: str
 
 
 class BattleLog:
     def __init__(self):
         self.actions = []
 
-    def add_action(self, action: BattleAction):
+    def add_action(self, action: BattleEvent):
         self.actions.append(action)
 
-    def to_string(self, perspective: Literal["hero", "enemy"]):
-        if perspective != "hero" and perspective != "enemy":
-            raise ValueError("Invalid perspective")
-
+    def to_string(self, n_actions: int = 5):
         battle_log_text = ""
-        for action in self.actions:
-            if action.user == perspective:
-                battle_log_text += f"You: {action.action_description}\n"
-            else:
-                battle_log_text += f"Enemy: {action.action_description}\n"
+        for action in self.actions[-n_actions:]:
+            battle_log_text += (
+                f"{action.character_name} turn: {action.effect_description}\n"
+            )
         return battle_log_text

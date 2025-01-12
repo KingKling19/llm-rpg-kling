@@ -1,3 +1,4 @@
+from textwrap import dedent
 from llm_rpg.llm.llm import LLM
 from llm_rpg.scenes.battle.battle_log import BattleLog
 
@@ -39,25 +40,34 @@ class Enemy(Character):
         self.llm = llm
 
     def get_next_action(self, battle_log: BattleLog, hero: Hero):
-        battle_log_text = battle_log.to_string(perspective="enemy")
+        battle_log_text = battle_log.to_string()
 
-        prompt = f"""
-        You are a video game character that is in a battle against an enemy.
-        Try to come up with a natural action based on the battle history.
-        Don't repeat the same action every turn.
-        
-        You have the following description:
-        {self.description}
+        prompt = dedent(
+            f"""
+            You are a video game character called {self.name} that is in a battle against an enemy called {hero.name}.
+            Try to come up with a natural action based on the battle history and the current HP of both characters.
+            
+            You should try to defeat the enemy or reduce their HP to 0.
 
-        The enemy has the following description:
-        {hero.description}
+            Don't repeat the same action every turn.
+            
+            You have the following description:
+            {self.description}
 
-        Current battle history:
-        {battle_log_text}
+            The enemy, {hero.name}, has the following description:
+            {hero.description}
 
-        Describe your next action very briefly in third person like a narrator would.
-        """
+            Current battle history:
+            {battle_log_text}
 
-        print(prompt)
+            HP of you, {self.name}: {self.stats.hp}
+            HP of {hero.name}: {hero.stats.hp}
+            
+            Describe your next action very briefly in third person like a narrator would.
+            """
+        )
+
+        # print("=== PROMPT ENEMY AI ===")
+        # print(prompt)
 
         return self.llm.generate_completion(prompt)

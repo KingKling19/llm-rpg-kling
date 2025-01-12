@@ -1,13 +1,13 @@
 from abc import ABC, abstractmethod
-import json
-from dotenv import load_dotenv
+
 import openai
 import os
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
+
+from llm_rpg.llm.llm_cost_tracker import LLMCostTracker
 
 
-# Abstract LLM class
 class LLM(ABC):
     @abstractmethod
     def generate_completion(self, prompt: str) -> str:
@@ -21,34 +21,55 @@ class LLM(ABC):
 
 
 class GroqLLM(LLM):
-    def __init__(self, model: str = "llama-3.3-70b-versatile"):
+    def __init__(
+        self,
+        model: str = "llama-3.3-70b-versatile",
+        llm_cost_tracker: LLMCostTracker = None,
+    ):
         self.client = openai.OpenAI(
             base_url="https://api.groq.com/openai/v1",
             api_key=os.environ.get("GROQ_API_KEY"),
         )
         self.model = model
+        self.pricing = {
+            "llama-3.3-70b-versatile": {
+                "input_token_price": 0.59 / 1000000,
+                "output_token_price": 0.79 / 1000000,
+            }
+        }
+        self.llm_cost_tracker = llm_cost_tracker
 
     def generate_completion(self, prompt: str) -> str:
         response = self.client.chat.completions.create(
             model=self.model,
             messages=[{"role": "user", "content": prompt}],
         )
+        self._calculate_completion_costs(response)
         return response.choices[0].message.content
 
-    def generate_structured_completion(
-        self, prompt: str, output_schema: BaseModel
-    ) -> BaseModel:
-        json_schema = json.dumps(output_schema.model_json_schema(), indent=2)
+    def _calculate_completion_costs(self, response: openai.types.Completion):
+        input_tokens = response.usage.prompt_tokens
+        completion_tokens = response.usage.completion_tokens
 
-        output_format_instruction = (
-            f"Output the result in the following JSON format: {json_schema}"
+        input_cost = input_tokens * self.pricing[self.model]["input_token_price"]
+        completion_cost = (
+            completion_tokens * self.pricing[self.model]["output_token_price"]
         )
 
-        prompt = f"{prompt}\n\n{output_format_instruction}"
+        self.llm_cost_tracker.add_cost(
+            input_tokens, completion_tokens, input_cost, completion_cost
+        )
 
+    def generate_structured_completion(
+        self, prompt: str, output_model: BaseModel
+    ) -> BaseModel:
         response = self.client.chat.completions.create(
             model=self.model,
             messages=[{"role": "user", "content": prompt}],
             response_format={"type": "json_object"},
         )
-        return output_schema.model_validate_json(response.choices[0].message.content)
+        parsed_output = output_model.model_validate_json(
+            response.choices[0].message.content
+        )
+        self._calculate_completion_costs(response)
+        return parsed_output
