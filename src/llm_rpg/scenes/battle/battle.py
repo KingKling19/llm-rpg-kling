@@ -1,3 +1,4 @@
+from llm_rpg.graphics.renderer import Renderer
 from llm_rpg.objects.character import Hero, Enemy
 from llm_rpg.scenes.battle.battle_ai import BattleAI
 from llm_rpg.scenes.battle.battle_log import BattleEvent, BattleLog
@@ -7,13 +8,16 @@ from llm_rpg.utils.timer import Timer
 
 
 class Battle:
-    def __init__(self, hero: Hero, enemy: Enemy, battle_ai: BattleAI):
+    def __init__(
+        self, hero: Hero, enemy: Enemy, battle_ai: BattleAI, renderer: Renderer
+    ):
         self.hero = hero
         self.enemy = enemy
         self.battle_ai = battle_ai
         self.battle_log = BattleLog()
         self.creativity_tracker = CreativityTracker()
         self.damage_calculator = DamageCalculator()
+        self.renderer = renderer
 
     def hero_turn(self):
         with Timer() as timer:
@@ -64,7 +68,7 @@ class Battle:
         print(f"⚡ Effect: {action_effect.effect_description}")
         print(f"  - feasibility: {action_effect.feasibility}")
         print(f"  - potential_damage: {action_effect.potential_damage}")
-        print(damage_calculation_result.to_string_debug())
+        print(damage_calculation_result.to_string())
         print(f"❤️  Enemy HP: {self.enemy.stats.hp:.1f}/{self.enemy.stats.max_hp:.1f}\n")
 
     def enemy_turn(self):
@@ -103,24 +107,65 @@ class Battle:
         print(f"⚡ Effect: {action_effect.effect_description}")
         print(f"  - feasibility: {action_effect.feasibility}")
         print(f"  - potential_damage: {action_effect.potential_damage}")
-        print(damage_calculation_result.to_string_debug())
+        print(damage_calculation_result.to_string())
         print(f"❤️  Hero HP: {self.hero.stats.hp:.1f}/{self.hero.stats.max_hp:.1f}\n")
 
     def start(self):
-        print(f"The Battle has started! {self.hero.name} vs {self.enemy.name}")
+        print(f"The Battle has started!")
+        print(f"🦸 {self.hero.name} lvl {self.hero.stats.level}")
+        print(self.hero.description)
+        print(
+            """
+      ,   A           {} 
+     / \, | ,        .--.
+    |    =|= >      /.--.\ 
+     \ /` | `       |====|
+      `   |         |`::`|
+          |     .-;`\..../`;-.  
+         /|\    /  |...::...|  \ 
+        / | \  |   /'''::'''\   | 
+       /  |  \  \   \   ::   /   /  
+      /   |   \ `-._\  ::  /_.-`  
+     /    |    \   `-;_::_;-` 
+"""
+        )
+
+        print("---- VS ----")
+        print(f"👾 {self.enemy.name} lvl {self.enemy.stats.level}")
+        print(self.enemy.description)
+        print(
+            """
+                      ___====-_  _-====___
+                _--^^^#####//      \\#####^^^--_
+             _-^##########// (    ) \\##########^-_
+            -############//  |\^^/|  \\############-
+          _/############//   (@::@)   \\############\_
+         /#############((     \\//     ))#############
+        -###############\\    (oo)    //###############-
+       -#################\\  / "" \  //#################-
+      -###################\\/  .  \//###################-
+     _#/|##########/\######(   )######/\##########|\#_
+    |/ |#/\#/\#/\/  \#/\#|/\#|/\#  /\#/\#/\#/\| \|/|/
+    / / _/ /_/ |   |_/_/__/___/_/ | /_/ /_/ // //\ 
+    \/\/\/_/ |_/  _/ /_/ \__/  | /_/ /_/ /_/ /_/
+            /_/ |_/ /_/  /_/ | /_/ /_/ /_/ /_/ /
+           (_/   /_/ |_/(_/  /_/ /_/  /_/ /_/
+           (_/   (_/ (_/   (_/  (_/ (_/
+
+"""
+        )
         self.advance_turn()
 
     def advance_turn(self):
-        self.hero_turn()
-        if self.enemy.stats.hp <= 0:
-            print(f"{self.enemy.name} is dead!")
-            return
+        while True:
+            self.hero_turn()
+            if self.enemy.stats.hp <= 0:
+                print(f"{self.enemy.name} is dead!")
+                break
 
-        self.enemy_turn()
-        if self.hero.stats.hp <= 0:
-            print(f"{self.hero.name} is dead!")
-            return
+            self.enemy_turn()
+            if self.hero.stats.hp <= 0:
+                print(f"{self.hero.name} is dead!")
+                break
 
-        self.hero.end_turn_effects()
-
-        self.advance_turn()
+            self.hero.end_turn_effects()

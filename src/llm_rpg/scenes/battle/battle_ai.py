@@ -72,9 +72,6 @@ class BattleAI:
                 {defending_character.name} description:
                 {defending_character.description}
 
-                HP of {attacking_character.name}: {attacking_character.stats.hp}
-                HP of {defending_character.name}: {defending_character.stats.hp}
-
                 Battle history:
                 {battle_log_string}
 

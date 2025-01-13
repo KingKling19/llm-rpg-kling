@@ -59,6 +59,17 @@ class DamageCalculationResult:
             f"  - total_dmg_unrounded: {self.total_dmg_unrounded}\n"
         )
 
+    def to_string(self):
+        base_string = f"💥 Base damage: {round(self.llm_scaled_base_dmg)}"
+        if self.answer_speed_bonus_dmg > 0:
+            base_string += f"\n  - answer speed bonus: + {self.answer_speed_bonus_dmg}"
+        if self.creativity_bonus_dmg > 0:
+            base_string += f"\n  - creativity bonus: + {self.creativity_bonus_dmg}"
+        if self.creativity_bonus_dmg < 0:
+            base_string += f"\n  - repetition penalty: {self.creativity_bonus_dmg}"
+
+        return base_string
+
 
 class DamageCalculator:
     def __init__(
@@ -144,8 +155,8 @@ class DamageCalculator:
             llm_scaled_base_dmg + creativity_bonus_dmg + answer_speed_bonus_dmg
         )
         total_dmg = round(total_dmg_unrounded)
-        if total_dmg < 1:
-            total_dmg = 1
+        if total_dmg < 0:
+            total_dmg = 0
 
         return DamageCalculationResult(
             random_factor=random_factor,
