@@ -10,6 +10,7 @@ class Stats:
         # reduces damage taken
         self.defense = defense
         # determines amount of letters you can type
+        self.max_focus = focus
         self.focus = focus
         # determines how much damage you can take
         self.max_hp = hp
@@ -27,11 +28,63 @@ class Character:
 
 
 class Hero(Character):
-    def __init__(self, name: str, description: str, stats: Stats):
+    def __init__(
+        self,
+        name: str,
+        description: str,
+        stats: Stats,
+        char_per_focus: int = 5,
+        focus_restoration_per_turn: int = 1,
+    ):
         super().__init__(name, description, stats)
+        self.char_per_focus = char_per_focus
+        self.focus_restoration_per_turn = focus_restoration_per_turn
 
     def get_next_action(self):
-        return input("What is your next action? ")
+        proposed_input = input(
+            f"What is your next action? You have {self.stats.focus} focus "
+            f"so you can type {self.char_per_focus * self.stats.focus} non-whitespace characters. "
+            f"You can also type 'rest' to rest this turn (this does not cost focus points). "
+            f"Type your action here: "
+        )
+        n_chars = len(proposed_input.replace(" ", ""))
+        if proposed_input.lower().strip() == "rest":
+            return "Is tired and rests this turn."
+        while n_chars > self.char_per_focus * self.stats.focus:
+            print(
+                f"Your current focus is {self.stats.focus} which only allows you to type "
+                f"{self.char_per_focus * self.stats.focus} characters. You typed {n_chars} non-whitespace characters. Try again."
+            )
+            proposed_input = input(
+                f"What is your next action? You have {self.stats.focus} focus "
+                f"so you can type {self.char_per_focus * self.stats.focus} non-whitespace characters. "
+                f"You can also type 'rest' to rest this turn (this does not cost focus points). "
+                f"Type your action here: "
+            )
+            n_chars = len(proposed_input.replace(" ", ""))
+
+        used_focus = max(1, n_chars // self.char_per_focus)
+        self.stats.focus -= used_focus
+        print(
+            f"You used {used_focus} focus points. You now have {self.stats.focus} focus points."
+        )
+        return proposed_input
+
+    def end_turn_effects(self):
+        if self.stats.focus < self.stats.max_focus:
+            focus_to_restore = min(
+                self.focus_restoration_per_turn, self.stats.max_focus - self.stats.focus
+            )
+            if focus_to_restore > 0:
+                self.stats.focus += focus_to_restore
+                print(
+                    f"You restore {focus_to_restore} focus points. "
+                    f"You now have {self.stats.focus} focus points."
+                )
+            else:
+                print(
+                    f"You restore no focus points. As you have reached your maximum focus of {self.stats.max_focus}."
+                )
 
 
 class Enemy(Character):
@@ -66,8 +119,5 @@ class Enemy(Character):
             Describe your next action very briefly in third person like a narrator would.
             """
         )
-
-        # print("=== PROMPT ENEMY AI ===")
-        # print(prompt)
 
         return self.llm.generate_completion(prompt)

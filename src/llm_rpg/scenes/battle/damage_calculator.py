@@ -1,4 +1,4 @@
-from math import ceil
+from math import ceil, floor
 import random
 
 
@@ -124,7 +124,12 @@ class DamageCalculator:
         )
 
         creativity_bonus_scaling = new_words_bonus - overused_words_penalty
-        creativity_bonus_dmg = ceil(llm_scaled_base_dmg * creativity_bonus_scaling)
+        if creativity_bonus_scaling < 0:
+            # penalty gets floored
+            creativity_bonus_dmg = floor(llm_scaled_base_dmg * creativity_bonus_scaling)
+        else:
+            # bonus gets ceiled
+            creativity_bonus_dmg = ceil(llm_scaled_base_dmg * creativity_bonus_scaling)
 
         # answer speed bonus depends on answer speed
         answer_speed_bonus_scaling = max(
@@ -139,6 +144,8 @@ class DamageCalculator:
             llm_scaled_base_dmg + creativity_bonus_dmg + answer_speed_bonus_dmg
         )
         total_dmg = round(total_dmg_unrounded)
+        if total_dmg < 1:
+            total_dmg = 1
 
         return DamageCalculationResult(
             random_factor=random_factor,

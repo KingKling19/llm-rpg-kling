@@ -115,8 +115,12 @@ class Battle:
         if self.enemy.stats.hp <= 0:
             print(f"{self.enemy.name} is dead!")
             return
+
         self.enemy_turn()
         if self.hero.stats.hp <= 0:
             print(f"{self.hero.name} is dead!")
             return
+
+        self.hero.end_turn_effects()
+
         self.advance_turn()

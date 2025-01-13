@@ -17,12 +17,12 @@ class Game:
         hero = Hero(
             name="Wout",
             description="Warrior with a sword",
-            stats=Stats(attack=10, defense=10, focus=10, hp=30),
+            stats=Stats(attack=10, defense=10, focus=20, hp=30),
         )
         enemy = Enemy(
             name="Sparky",
             description="An ancient dragon",
-            stats=Stats(attack=10, defense=10, focus=10, hp=30),
+            stats=Stats(attack=10, defense=10, focus=20, hp=30),
             llm=llm,
         )
         battle = Battle(
