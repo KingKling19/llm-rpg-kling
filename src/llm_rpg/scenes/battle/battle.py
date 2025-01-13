@@ -1,11 +1,8 @@
-from math import ceil
-import random
-import time
-
 from llm_rpg.objects.character import Hero, Enemy
-from llm_rpg.llm.llm import LLM
 from llm_rpg.scenes.battle.battle_ai import BattleAI
 from llm_rpg.scenes.battle.battle_log import BattleEvent, BattleLog
+from llm_rpg.scenes.battle.creativity_tracker import CreativityTracker
+from llm_rpg.scenes.battle.damage_calculator import DamageCalculator
 from llm_rpg.utils.timer import Timer
 
 
@@ -15,13 +12,12 @@ class Battle:
         self.enemy = enemy
         self.battle_ai = battle_ai
         self.battle_log = BattleLog()
+        self.creativity_tracker = CreativityTracker()
+        self.damage_calculator = DamageCalculator()
 
     def hero_turn(self):
         with Timer() as timer:
             proposed_action = self.hero.get_next_action()
-        print(f"Hero turn took: {timer.interval:.2f} seconds")
-        print("\n=== HERO TURN ===")
-        print(f"🦸 tries to: {proposed_action}")
 
         action_effect = self.battle_ai.determine_action_effect(
             proposed_action_attacker=proposed_action,
@@ -29,10 +25,6 @@ class Battle:
             defending_character=self.enemy,
             battle_log_string=self.battle_log.to_string(),
         )
-
-        print(f"⚡ Effect: {action_effect.effect_description}")
-        print(f"  - feasibility: {action_effect.feasibility}")
-        print(f"  - potential_damage: {action_effect.potential_damage}")
 
         self.battle_log.add_action(
             BattleEvent(
@@ -42,22 +34,41 @@ class Battle:
             )
         )
 
-        damage = self._calculate_damage(
+        n_new_words_in_action = self.creativity_tracker.count_new_words_in_action(
+            action=proposed_action
+        )
+
+        n_overused_words_in_action = (
+            self.creativity_tracker.count_overused_words_in_action(
+                action=proposed_action
+            )
+        )
+
+        damage_calculation_result = self.damage_calculator.calculate_damage(
             attack=self.hero.stats.attack,
             defense=self.enemy.stats.defense,
             feasibility=action_effect.feasibility,
             potential_damage=action_effect.potential_damage,
+            n_new_words_in_action=n_new_words_in_action,
+            n_overused_words_in_action=n_overused_words_in_action,
+            answer_speed_s=timer.interval,
         )
 
-        print(f"💥 Damage dealt: {damage:.0f}")
-        self.enemy.stats.hp -= damage
+        self.enemy.stats.hp -= damage_calculation_result.total_dmg
+
+        self.creativity_tracker.add_action(proposed_action)
+
+        print(f"Hero turn took: {timer.interval:.2f} seconds")
+        print("\n=== HERO TURN ===")
+        print(f"🦸 tries to: {proposed_action}")
+        print(f"⚡ Effect: {action_effect.effect_description}")
+        print(f"  - feasibility: {action_effect.feasibility}")
+        print(f"  - potential_damage: {action_effect.potential_damage}")
+        print(damage_calculation_result.to_string_debug())
         print(f"❤️  Enemy HP: {self.enemy.stats.hp:.1f}/{self.enemy.stats.max_hp:.1f}\n")
 
     def enemy_turn(self):
         proposed_enemy_action = self.enemy.get_next_action(self.battle_log, self.hero)
-
-        print("\n=== ENEMY TURN ===")
-        print(f"👾 tries to: {proposed_enemy_action}")
 
         action_effect = self.battle_ai.determine_action_effect(
             proposed_action_attacker=proposed_enemy_action,
@@ -65,10 +76,6 @@ class Battle:
             defending_character=self.hero,
             battle_log_string=self.battle_log.to_string(),
         )
-
-        print(f"⚡ Effect: {action_effect.effect_description}")
-        print(f"  - feasibility: {action_effect.feasibility}")
-        print(f"  - potential_damage: {action_effect.potential_damage}")
 
         self.battle_log.add_action(
             BattleEvent(
@@ -78,33 +85,26 @@ class Battle:
             )
         )
 
-        damage = self._calculate_damage(
+        damage_calculation_result = self.damage_calculator.calculate_damage(
             attack=self.enemy.stats.attack,
             defense=self.hero.stats.defense,
             feasibility=action_effect.feasibility,
             potential_damage=action_effect.potential_damage,
+            n_new_words_in_action=0,
+            n_overused_words_in_action=0,
+            answer_speed_s=1000,
         )
-        print(f"💥 Damage dealt: {damage:.0f}")
-        self.hero.stats.hp -= damage
+        self.hero.stats.hp -= damage_calculation_result.total_dmg
+
+        self.creativity_tracker.add_action(proposed_enemy_action)
+
+        print("\n=== ENEMY TURN ===")
+        print(f"👾 tries to: {proposed_enemy_action}")
+        print(f"⚡ Effect: {action_effect.effect_description}")
+        print(f"  - feasibility: {action_effect.feasibility}")
+        print(f"  - potential_damage: {action_effect.potential_damage}")
+        print(damage_calculation_result.to_string_debug())
         print(f"❤️  Hero HP: {self.hero.stats.hp:.1f}/{self.hero.stats.max_hp:.1f}\n")
-
-    def _calculate_damage(
-        self, attack: int, defense: int, feasibility: float, potential_damage: float
-    ) -> int:
-        # base dmg depends purely on attack, defense and a random factor
-        random_factor = random.uniform(0.95, 1.05)
-        base_dmg = (attack / 2 - defense / 4) * random_factor
-        if base_dmg <= 0:
-            base_dmg = 1
-
-        # total dmg depends on the action feasibility and potential damage which are
-        # determined by the LLM
-        EFFECTIVENESS_DMG_SCALING = 2
-        total_dmg = (
-            base_dmg * EFFECTIVENESS_DMG_SCALING * feasibility * potential_damage
-        )
-
-        return ceil(total_dmg)
 
     def start(self):
         print(f"The Battle has started! {self.hero.name} vs {self.enemy.name}")

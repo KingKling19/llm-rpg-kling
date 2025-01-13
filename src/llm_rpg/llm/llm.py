@@ -23,8 +23,8 @@ class LLM(ABC):
 class GroqLLM(LLM):
     def __init__(
         self,
+        llm_cost_tracker: LLMCostTracker,
         model: str = "llama-3.3-70b-versatile",
-        llm_cost_tracker: LLMCostTracker = None,
     ):
         self.client = openai.OpenAI(
             base_url="https://api.groq.com/openai/v1",
