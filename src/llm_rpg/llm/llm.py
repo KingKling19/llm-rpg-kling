@@ -26,6 +26,8 @@ class GroqLLM(LLM):
         llm_cost_tracker: LLMCostTracker,
         model: str = "llama-3.3-70b-versatile",
     ):
+        if not os.environ.get("GROQ_API_KEY"):
+            raise ValueError("GROQ_API_KEY is not set")
         self.client = openai.OpenAI(
             base_url="https://api.groq.com/openai/v1",
             api_key=os.environ.get("GROQ_API_KEY"),

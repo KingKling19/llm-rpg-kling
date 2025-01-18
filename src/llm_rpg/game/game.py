@@ -55,5 +55,3 @@ class Game:
     def start(self):
         battle = get_mid_game_battle()
         battle.start()
-        print("--- Cost Analysis ---")
-        battle.llm.llm_cost_tracker.display_costs()
