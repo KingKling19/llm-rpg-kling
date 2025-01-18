@@ -29,6 +29,7 @@ LLM-RPG is intended to be a role-playing game that leverages large language mode
    GROQ_API_KEY=your_api_key_here
    ```
 
+You can get a Groq API key from [here](https://groq.com/). This gives you free tokens each day.
 ## Usage
 
 To start the game, run the following command:
