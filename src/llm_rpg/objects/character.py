@@ -1,6 +1,7 @@
 from textwrap import dedent
 from llm_rpg.llm.llm import LLM
 from llm_rpg.scenes.battle.battle_log import BattleLog
+from llm_rpg.utils.timer import Timer
 
 
 class Stats:
@@ -28,6 +29,31 @@ class Character:
         self.stats = stats
 
 
+class ProposedHeroAction:
+    def __init__(
+        self,
+        action: str,
+        focus_cost: int,
+        time_to_answer_seconds: float,
+        is_valid: bool,
+        is_rest: bool,
+        invalid_reason: str = None,
+    ):
+        self.action = action
+        self.focus_cost = focus_cost
+        self.time_to_answer_seconds = time_to_answer_seconds
+        self.is_valid = is_valid
+        self.is_rest = is_rest
+        self.invalid_reason = invalid_reason
+
+
+class EndOfTurnEffects:
+    def __init__(self, focus_restored: int, hp_restored: int, description: str):
+        self.focus_restored = focus_restored
+        self.hp_restored = hp_restored
+        self.description = description
+
+
 class Hero(Character):
     def __init__(
         self,
@@ -42,42 +68,48 @@ class Hero(Character):
         self.char_per_focus = char_per_focus
         self.focus_restoration_per_turn = focus_restoration_per_turn
         self.focus_restoration_per_rest = focus_restoration_per_rest
-        self.has_rested = False
+        self.is_resting = False
 
-    def get_next_action(self):
-        proposed_input = input(
-            f"What is your next action? You have {self.stats.focus} focus "
-            f"so you can type {self.char_per_focus * self.stats.focus} non-whitespace characters. "
-            f"You can also type 'rest' to rest this turn. \n"
-        )
-        n_chars = len(proposed_input.replace(" ", ""))
+    def get_next_action(self) -> ProposedHeroAction:
+        with Timer() as timer:
+            proposed_input = input()
         if proposed_input.lower().strip() == "rest":
-            self.has_rested = True
-            return "Is tired and rests this turn."
-        while n_chars > self.char_per_focus * self.stats.focus:
-            print(
-                f"Your current focus is {self.stats.focus} which only allows you to type "
-                f"{self.char_per_focus * self.stats.focus} characters. You typed {n_chars} non-whitespace characters. Try again."
+            return ProposedHeroAction(
+                action="Is tired and rests this turn.",
+                focus_cost=0,
+                is_valid=True,
+                is_rest=True,
+                time_to_answer_seconds=timer.interval,
             )
-            proposed_input = input(
-                f"What is your next action? You have {self.stats.focus} focus "
-                f"so you can type {self.char_per_focus * self.stats.focus} non-whitespace characters. "
-                f"You can also type 'rest' to rest this turn. \n "
+
+        n_chars = len(proposed_input.replace(" ", ""))
+        if n_chars > self.char_per_focus * self.stats.focus:
+            return ProposedHeroAction(
+                action="",
+                focus_cost=0,
+                is_valid=False,
+                is_rest=False,
+                time_to_answer_seconds=timer.interval,
+                invalid_reason=f"Your current focus is {self.stats.focus} which only allows you to type "
+                f"{self.char_per_focus * self.stats.focus} characters. You typed {n_chars} non-whitespace characters. Try again.",
             )
-            n_chars = len(proposed_input.replace(" ", ""))
 
         used_focus = max(1, n_chars // self.char_per_focus)
-        self.stats.focus -= used_focus
-        print(
-            f"You used {used_focus} focus points. You now have {self.stats.focus} focus points."
+        return ProposedHeroAction(
+            action=proposed_input,
+            focus_cost=used_focus,
+            is_valid=True,
+            is_rest=False,
+            time_to_answer_seconds=timer.interval,
         )
-        return proposed_input
 
-    def end_turn_effects(self):
-        if self.has_rested:
+    def end_turn_effects(self) -> EndOfTurnEffects:
+        if self.is_resting:
             focus_to_restore = self.focus_restoration_per_rest
         else:
             focus_to_restore = self.focus_restoration_per_turn
+
+        self.is_resting = False
 
         if self.stats.focus < self.stats.max_focus:
             focus_to_restore = min(
@@ -85,22 +117,27 @@ class Hero(Character):
             )
             if focus_to_restore > 0:
                 self.stats.focus += focus_to_restore
-                if self.has_rested:
-                    print(
-                        f"You have rested and restored {focus_to_restore} focus points. "
-                        f"You now have {self.stats.focus} focus points."
+                if self.is_resting:
+                    return EndOfTurnEffects(
+                        focus_restored=focus_to_restore,
+                        hp_restored=0,
+                        description=f"You have rested and restored {focus_to_restore} focus points. "
+                        f"You now have {self.stats.focus} focus points.",
                     )
                 else:
-                    print(
-                        f"You restore {focus_to_restore} focus points. "
-                        f"You now have {self.stats.focus} focus points."
+                    return EndOfTurnEffects(
+                        focus_restored=focus_to_restore,
+                        hp_restored=0,
+                        description=f"You restore {focus_to_restore} focus points. "
+                        f"You now have {self.stats.focus} focus points.",
                     )
         else:
-            print(
-                f"You restore no focus points. As you have reached your maximum focus of {self.stats.max_focus}."
+            return EndOfTurnEffects(
+                focus_restored=0,
+                hp_restored=0,
+                description="You restore no focus points. As you have reached your maximum focus of "
+                f"{self.stats.max_focus}.",
             )
-
-        self.has_rested = False
 
     def render(self):
         print(f"🦸 {self.name} lvl {self.stats.level}")
@@ -128,7 +165,7 @@ class Enemy(Character):
         self.llm = llm
 
     def get_next_action(self, battle_log: BattleLog, hero: Hero):
-        battle_log_text = battle_log.to_string()
+        battle_log_text = battle_log.to_string_for_battle_ai()
 
         prompt = dedent(
             f"""
