@@ -29,7 +29,7 @@ class Game:
         enemy = Enemy(
             name="Zephyros",
             description="A cunning and ancient dragon with scales that shimmer like the night sky",
-            stats=Stats(level=5, attack=10, defense=10, focus=20, hp=30),
+            stats=Stats(level=5, attack=100, defense=10, focus=20, hp=30),
             llm=self.llm,
         )
 
@@ -47,4 +47,4 @@ class Game:
             self.current_scene.update()
             self.current_scene.render()
 
-        print(f"Total cost: {self.llm.llm_cost_tracker.total_cost}")
+        print(f"Total llm cost $: {self.llm.llm_cost_tracker.total_cost}")

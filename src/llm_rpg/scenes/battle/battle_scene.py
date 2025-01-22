@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 class BattleState(Enum):
     START = "start"
     HERO_COMMAND_INPUT = "hero_command_input"
-    # HERO_COMMAND_INPUT_INVALID = "hero_command_input_invalid"
+    HERO_COMMAND_INPUT_INVALID = "hero_command_input_invalid"
     END = "end"
 
 
@@ -45,7 +45,10 @@ class BattleScene(Scene):
     def handle_input(self):
         if self.current_state == BattleState.START:
             _ = input()
-        elif self.current_state == BattleState.HERO_COMMAND_INPUT:
+        elif (
+            self.current_state == BattleState.HERO_COMMAND_INPUT
+            or self.current_state == BattleState.HERO_COMMAND_INPUT_INVALID
+        ):
             action = self.hero.get_next_action()
             self.hero_proposed_action_queue.append(action)
 
@@ -84,9 +87,12 @@ class BattleScene(Scene):
                 answer_speed_s=proposed_action.time_to_answer_seconds,
             )
             self.enemy.stats.hp -= damage_calculation_result.total_dmg
+            if self.enemy.stats.hp <= 0:
+                self.enemy.stats.hp = 0
             self.creativity_tracker.add_action(proposed_action.action)
             self.battle_log.add_event(
                 BattleEvent(
+                    is_hero_turn=True,
                     character_name=self.hero.name,
                     proposed_action=proposed_action.action,
                     effect_description=action_effect.effect_description,
@@ -95,13 +101,10 @@ class BattleScene(Scene):
             )
             if self.enemy.stats.hp <= 0:
                 self.current_state = BattleState.END
-            else:
-                end_of_turn_effects = self.hero.end_turn_effects()
-                self.message_queue.append(end_of_turn_effects.description)
-                self.current_state = BattleState.HERO_COMMAND_INPUT
+
         else:
             self.message_queue.append(proposed_action.invalid_reason)
-            self.current_state = BattleState.HERO_COMMAND_INPUT
+            self.current_state = BattleState.HERO_COMMAND_INPUT_INVALID
 
     def _update_enemy_turn(self):
         proposed_enemy_action = self.enemy.get_next_action(self.battle_log, self.hero)
@@ -121,9 +124,12 @@ class BattleScene(Scene):
             answer_speed_s=1000,
         )
         self.hero.stats.hp -= damage_calculation_result.total_dmg
+        if self.hero.stats.hp < 0:
+            self.hero.stats.hp = 0
         self.creativity_tracker.add_action(proposed_enemy_action)
         self.battle_log.add_event(
             BattleEvent(
+                is_hero_turn=False,
                 character_name=self.enemy.name,
                 proposed_action=proposed_enemy_action,
                 effect_description=action_effect.effect_description,
@@ -135,13 +141,24 @@ class BattleScene(Scene):
         else:
             self.current_state = BattleState.HERO_COMMAND_INPUT
 
+    def _update_end_of_turn_effects(self):
+        end_of_turn_effects = self.hero.end_turn_effects()
+        self.message_queue.append(end_of_turn_effects.description)
+
     def update(self):
         if self.current_state == BattleState.START:
             self._update_start_game()
-        elif self.current_state == BattleState.HERO_COMMAND_INPUT:
+        elif (
+            self.current_state == BattleState.HERO_COMMAND_INPUT
+            or self.current_state == BattleState.HERO_COMMAND_INPUT_INVALID
+        ):
             self._update_hero_turn()
-            self._update_enemy_turn()
-        elif self.current_state == BattleState.END:
+            if self.current_state == BattleState.HERO_COMMAND_INPUT:
+                self._update_enemy_turn()
+                if self.current_state != BattleState.END:
+                    self._update_end_of_turn_effects()
+        # battle
+        if self.current_state == BattleState.END:
             self.game.is_running = False
 
     def _clear_screen(self):
@@ -150,7 +167,7 @@ class BattleScene(Scene):
     def _render_battle_start_state(self):
         self.hero.render()
         self.enemy.render()
-        print("Press Any Key to start the battle")
+        print("Press Enter to start the battle")
 
     def _render_message_queue(self):
         for message in self.message_queue:
@@ -164,25 +181,36 @@ class BattleScene(Scene):
         print(f"{self.enemy.name} HP: {self.enemy.stats.hp}/{self.enemy.stats.max_hp}")
 
     def render(self):
-        self._clear_screen()
         if self.current_state == BattleState.START:
             self._render_battle_start_state()
+        elif self.current_state == BattleState.HERO_COMMAND_INPUT_INVALID:
+            print("")
+            print("Action invalid because:")
+            self._render_message_queue()
+            print("")
+            print("What do you want to do? You can also type 'rest' to rest this turn.")
         elif (
             self.current_state == BattleState.HERO_COMMAND_INPUT
             or self.current_state == BattleState.END
         ):
-            # print last 2 events
-            string_of_last_2_events = self.battle_log.get_string_of_last_2_events()
-            print(string_of_last_2_events)
-            print("")
-            # render message queue
-            self._render_message_queue()
-            print("")
-            print("--- Current Stats ---")
+            if self.battle_log.events:
+                print("")
+                print("--- The following events took place... --- \n")
+                string_of_last_2_events = self.battle_log.get_string_of_last_2_events()
+                print(string_of_last_2_events)
+                if self.message_queue:
+                    print("--- End of turn status updates --- \n")
+                    self._render_message_queue()
+                    print("")
+            print("--- Current Stats --- \n")
             self._render_character_stats()
             print("")
             if self.current_state == BattleState.END:
                 print("Game Ended")
+                if self.hero.stats.hp > 0:
+                    print(f"{self.hero.name} won!")
+                else:
+                    print(f"{self.enemy.name} won!")
             else:
                 print(
                     "What do you want to do? You can also type 'rest' to rest this turn."

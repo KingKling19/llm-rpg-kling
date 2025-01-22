@@ -4,6 +4,7 @@ from llm_rpg.scenes.battle.damage_calculator import DamageCalculationResult
 
 
 class BattleEvent(BaseModel):
+    is_hero_turn: bool
     character_name: str
     proposed_action: str
     effect_description: str
@@ -29,14 +30,25 @@ class BattleLog:
         return battle_log_text
 
     def get_string_of_last_2_events(self):
-        if len(self.events) < 2:
+        if len(self.events) == 0:
             return ""
-        text_to_renderer = ""
+        string_repr = ""
         last_2_events = self.events[-2:]
-        for event in last_2_events:
-            text_to_renderer += (
-                f"{event.character_name} turn: {event.effect_description}\n"
+        for i, event in enumerate(last_2_events):
+            if event.is_hero_turn:
+                string_repr += "🦸 Your turn:\n"
+            else:
+                string_repr += "👾 Enemy turn:\n"
+            string_repr += (
+                f"{event.character_name} tried to {event.proposed_action}\n\n"
+                f"LLM estimates:\n"
+                f"- feasibility: {event.damage_calculation_result.feasibility}\n"
+                f"- potential damage: {event.damage_calculation_result.potential_damage}\n\n"
+                f"Effect:\n"
+                f"{event.effect_description}\n\n"
+                f"Damage inflicted:\n"
+                f"{event.damage_calculation_result.to_string()}\n"
             )
-            text_to_renderer += event.damage_calculation_result.to_string()
-            text_to_renderer += "\n\n"
-        return text_to_renderer
+            if i < len(last_2_events) - 1:
+                string_repr += "\n"
+        return string_repr
