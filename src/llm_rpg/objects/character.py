@@ -1,5 +1,6 @@
 from textwrap import dedent
 from llm_rpg.llm.llm import LLM
+from llm_rpg.objects.item import Item
 from llm_rpg.scenes.battle.battle_log import BattleLog
 from llm_rpg.utils.timer import Timer
 
@@ -60,11 +61,15 @@ class Hero(Character):
         name: str,
         description: str,
         stats: Stats,
+        gold: int,
+        items: list[Item],
         char_per_focus: int = 5,
         focus_restoration_per_turn: int = 1,
         focus_restoration_per_rest: int = 2,
     ):
         super().__init__(name, description, stats)
+        self.gold = gold
+        self.items = items
         self.char_per_focus = char_per_focus
         self.focus_restoration_per_turn = focus_restoration_per_turn
         self.focus_restoration_per_rest = focus_restoration_per_rest

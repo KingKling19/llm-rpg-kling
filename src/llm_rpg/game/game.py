@@ -20,15 +20,17 @@ class Game:
         self.llm = GroqLLM(
             llm_cost_tracker=LLMCostTracker(), model="mixtral-8x7b-32768"
         )
-        self.current_scene: Scene | None = self.get_initial_scene()
+        self.current_scene: Scene | None = self.get_shop_scene()
         self.is_running = True
-
-    def get_initial_scene(self):
-        hero = Hero(
+        self.hero = Hero(
             name="Thalor",
             description="A fierce warrior with a mysterious past and unmatched swordsmanship",
             stats=Stats(level=5, attack=100, defense=10, focus=20, hp=30),
+            gold=100,
+            items=[],
         )
+
+    def get_battle_scene(self):
         enemy = Enemy(
             name="Zephyros",
             description="A cunning and ancient dragon with scales that shimmer like the night sky",
@@ -37,13 +39,16 @@ class Game:
         )
 
         battle_ai = BattleAI(llm=self.llm)
-        return BattleScene(self, hero, enemy, battle_ai)
+        return BattleScene(self, self.hero, enemy, battle_ai)
+
+    def get_shop_scene(self):
+        return ShopScene(self)
 
     def change_scene(self, scene_type: SceneTypes):
         if scene_type == SceneTypes.BATTLE:
-            self.current_scene = self.get_initial_scene()
+            self.current_scene = self.get_battle_scene()
         elif scene_type == SceneTypes.SHOP:
-            self.current_scene = ShopScene(self)
+            self.current_scene = self.get_shop_scene()
         else:
             raise ValueError(f"Tried to change to invalid scene: {scene_type}")
 
