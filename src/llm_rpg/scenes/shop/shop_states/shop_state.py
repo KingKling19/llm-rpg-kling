@@ -1,21 +1,14 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
-
-from enum import Enum
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from llm_rpg.game.game import Game
+    from llm_rpg.scenes.shop.shop_scene import ShopScene
 
 
-class SceneTypes(Enum):
-    BATTLE = "battle"
-    SHOP = "shop"
-
-
-class Scene(ABC):
-    def __init__(self, game: Game):
-        self.game = game
+class ShopState(ABC):
+    def __init__(self, shop_scene: ShopScene):
+        self.shop_scene = shop_scene
 
     @abstractmethod
     def handle_input(self):

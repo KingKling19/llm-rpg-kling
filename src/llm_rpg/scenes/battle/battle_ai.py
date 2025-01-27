@@ -89,9 +89,6 @@ class BattleAI:
             schema = json.dumps(ActionEffect.model_json_schema(), indent=2)
             prompt += schema
 
-            # print("=== PROMPT BATTLE AI ===")
-            # print(prompt)
-
             try:
                 unscaled_output = self.llm.generate_structured_completion(
                     prompt=prompt, output_model=ActionEffect

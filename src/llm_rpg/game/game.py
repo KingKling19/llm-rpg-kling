@@ -1,4 +1,5 @@
 from __future__ import annotations
+from enum import Enum
 from llm_rpg.llm.llm import GroqLLM
 from llm_rpg.llm.llm_cost_tracker import LLMCostTracker
 from llm_rpg.objects.character import Enemy, Hero, Stats
@@ -7,15 +8,17 @@ from llm_rpg.scenes.battle.battle_scene import BattleScene
 
 from typing import TYPE_CHECKING
 
+from llm_rpg.scenes.scene import SceneTypes
+from llm_rpg.scenes.shop.shop_scene import ShopScene
+
 if TYPE_CHECKING:
     from llm_rpg.scenes.scene import Scene
 
 
 class Game:
     def __init__(self):
-
         self.llm = GroqLLM(
-            llm_cost_tracker=LLMCostTracker(),
+            llm_cost_tracker=LLMCostTracker(), model="mixtral-8x7b-32768"
         )
         self.current_scene: Scene | None = self.get_initial_scene()
         self.is_running = True
@@ -24,7 +27,7 @@ class Game:
         hero = Hero(
             name="Thalor",
             description="A fierce warrior with a mysterious past and unmatched swordsmanship",
-            stats=Stats(level=5, attack=10, defense=10, focus=20, hp=30),
+            stats=Stats(level=5, attack=100, defense=10, focus=20, hp=30),
         )
         enemy = Enemy(
             name="Zephyros",
@@ -36,8 +39,13 @@ class Game:
         battle_ai = BattleAI(llm=self.llm)
         return BattleScene(self, hero, enemy, battle_ai)
 
-    def change_scene(self, scene_name: str):
-        self.current_scene = self.scenes[scene_name]
+    def change_scene(self, scene_type: SceneTypes):
+        if scene_type == SceneTypes.BATTLE:
+            self.current_scene = self.get_initial_scene()
+        elif scene_type == SceneTypes.SHOP:
+            self.current_scene = ShopScene(self)
+        else:
+            raise ValueError(f"Tried to change to invalid scene: {scene_type}")
 
     def run(self):
         # print initial scene

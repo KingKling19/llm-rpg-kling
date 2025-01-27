@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from llm_rpg.scenes.battle.battle_states.battle_state import BattleState
-
 from typing import TYPE_CHECKING
 
+from llm_rpg.scenes.scene import SceneTypes
 
 if TYPE_CHECKING:
     from llm_rpg.scenes.battle.battle_scene import BattleScene
@@ -17,7 +17,7 @@ class BattleEndState(BattleState):
         pass
 
     def update(self):
-        self.battle_scene.game.is_running = False
+        self.battle_scene.game.change_scene(SceneTypes.SHOP)
 
     def _render_character_stats(self):
         print(
