@@ -6,4 +6,4 @@ load_dotenv("config/.env")
 
 if __name__ == "__main__":
     game = Game()
-    game.start()
+    game.run()

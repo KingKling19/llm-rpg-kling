@@ -60,7 +60,9 @@ class DamageCalculationResult:
         )
 
     def to_string(self):
-        base_string = f"💥 Base damage: {round(self.llm_scaled_base_dmg)}"
+        base_string = f"💥 Total damage: {self.total_dmg}"
+        if self.total_dmg != round(self.llm_scaled_base_dmg):
+            base_string += f"\n  - base damage: {round(self.llm_scaled_base_dmg)}"
         if self.answer_speed_bonus_dmg > 0:
             base_string += f"\n  - answer speed bonus: + {self.answer_speed_bonus_dmg}"
         if self.creativity_bonus_dmg > 0:
