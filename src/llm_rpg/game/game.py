@@ -8,6 +8,8 @@ from llm_rpg.scenes.battle.battle_scene import BattleScene
 
 from typing import TYPE_CHECKING
 
+from llm_rpg.scenes.manage_character.manage_character_scene import ManageCharacterScene
+from llm_rpg.scenes.resting_hub.resting_hub_scene import RestingHubScene
 from llm_rpg.scenes.scene import SceneTypes
 from llm_rpg.scenes.shop.shop_scene import ShopScene
 
@@ -44,11 +46,21 @@ class Game:
     def get_shop_scene(self):
         return ShopScene(self)
 
+    def get_manage_character_scene(self):
+        return ManageCharacterScene(self)
+
+    def get_resting_hub_scene(self):
+        return RestingHubScene(self)
+
     def change_scene(self, scene_type: SceneTypes):
         if scene_type == SceneTypes.BATTLE:
             self.current_scene = self.get_battle_scene()
         elif scene_type == SceneTypes.SHOP:
             self.current_scene = self.get_shop_scene()
+        elif scene_type == SceneTypes.MANAGE_CHARACTER:
+            self.current_scene = self.get_manage_character_scene()
+        elif scene_type == SceneTypes.RESTING_HUB:
+            self.current_scene = self.get_resting_hub_scene()
         else:
             raise ValueError(f"Tried to change to invalid scene: {scene_type}")
 

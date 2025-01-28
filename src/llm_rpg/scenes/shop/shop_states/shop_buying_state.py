@@ -3,7 +3,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from llm_rpg.scenes.shop.shop_states.shop_end_state import ShopEndState
+
+from llm_rpg.scenes.scene import SceneTypes
 from llm_rpg.scenes.shop.shop_states.shop_state import ShopState
 
 if TYPE_CHECKING:
@@ -54,7 +55,7 @@ class ShopBuyingState(ShopState):
         self.purchased_new_item = False
         if self.last_user_shop_input.valid:
             if self.last_user_shop_input.wants_to_leave_shop:
-                self.shop_scene.change_state(ShopEndState(self.shop_scene))
+                self.shop_scene.game.change_scene(SceneTypes.RESTING_HUB)
             else:
                 if (
                     self.shop_scene.game.hero.gold
@@ -100,7 +101,7 @@ class ShopBuyingState(ShopState):
             print(f"    Cost: {item.cost} gold")
             print("-" * 50)
 
-    def _render_ask_user_to_buy_item(self):
+    def _render_ask_user_action(self):
         print("\nWhat would you like to do?")
         print(
             "- To buy an item: Enter its number (1-{})".format(
@@ -111,13 +112,13 @@ class ShopBuyingState(ShopState):
         print("\nYour choice: ", end="")
 
     def render(self):
+        self._render_message_queue()
+
         if not self.has_updated:
+            print("Welcome to the shop!")
+
+        if not self.has_updated or self.purchased_new_item:
             self._render_current_gold()
             self._render_items_in_shop()
-            self._render_message_queue()
-        else:
-            self._render_message_queue()
-            if self.purchased_new_item:
-                self._render_current_gold()
-                self._render_items_in_shop()
-        self._render_ask_user_to_buy_item()
+
+        self._render_ask_user_action()
