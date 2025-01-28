@@ -1,16 +1,16 @@
 from __future__ import annotations
 
-from llm_rpg.scenes.battle.battle_states.battle_state import BattleState
 
 from typing import TYPE_CHECKING
 
 from llm_rpg.scenes.battle.battle_states.battle_turn_state import BattleTurnState
+from llm_rpg.scenes.state import State
 
 if TYPE_CHECKING:
     from llm_rpg.scenes.battle.battle_scene import BattleScene
 
 
-class BattleStartState(BattleState):
+class BattleStartState(State):
     def __init__(self, battle_scene: BattleScene):
         self.battle_scene = battle_scene
 

@@ -1,17 +1,18 @@
 from __future__ import annotations
 
-from llm_rpg.objects.character import ProposedHeroAction
-from llm_rpg.scenes.battle.battle_log import BattleEvent
+from llm_rpg.objects.hero import ProposedHeroAction
+from llm_rpg.systems.battle.battle_log import BattleEvent
 from llm_rpg.scenes.battle.battle_states.battle_end_state import BattleEndState
-from llm_rpg.scenes.battle.battle_states.battle_state import BattleState
 
 from typing import TYPE_CHECKING
+
+from llm_rpg.scenes.state import State
 
 if TYPE_CHECKING:
     from llm_rpg.scenes.battle.battle_scene import BattleScene
 
 
-class BattleTurnState(BattleState):
+class BattleTurnState(State):
     def __init__(self, battle_scene: BattleScene):
         self.battle_scene = battle_scene
         self.is_hero_input_valid = True

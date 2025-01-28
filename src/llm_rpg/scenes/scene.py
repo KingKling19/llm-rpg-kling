@@ -1,11 +1,13 @@
 from __future__ import annotations
-from abc import ABC, abstractmethod
+from abc import ABC
 
 from enum import Enum
 from typing import TYPE_CHECKING
 
+
 if TYPE_CHECKING:
     from llm_rpg.game.game import Game
+    from llm_rpg.scenes.state import State
 
 
 class SceneTypes(Enum):
@@ -19,14 +21,14 @@ class Scene(ABC):
     def __init__(self, game: Game):
         self.game = game
 
-    @abstractmethod
+    def change_state(self, new_state: State):
+        self.current_state = new_state
+
     def handle_input(self):
-        pass
+        self.current_state.handle_input()
 
-    @abstractmethod
     def update(self):
-        pass
+        self.current_state.update()
 
-    @abstractmethod
     def render(self):
-        pass
+        self.current_state.render()

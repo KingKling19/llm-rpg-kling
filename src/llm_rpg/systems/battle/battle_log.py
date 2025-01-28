@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from llm_rpg.scenes.battle.damage_calculator import DamageCalculationResult
+from llm_rpg.systems.battle.damage_calculator import DamageCalculationResult
 
 
 class BattleEvent(BaseModel):

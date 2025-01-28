@@ -1,9 +1,9 @@
 from __future__ import annotations
-from enum import Enum
 from llm_rpg.llm.llm import GroqLLM
 from llm_rpg.llm.llm_cost_tracker import LLMCostTracker
-from llm_rpg.objects.character import Enemy, Hero, Stats
-from llm_rpg.scenes.battle.battle_ai import BattleAI
+from llm_rpg.objects.character import Stats
+from llm_rpg.objects.hero import Hero
+from llm_rpg.systems.battle.battle_ai import BattleAI
 from llm_rpg.scenes.battle.battle_scene import BattleScene
 
 from typing import TYPE_CHECKING
@@ -12,6 +12,7 @@ from llm_rpg.scenes.manage_character.manage_character_scene import ManageCharact
 from llm_rpg.scenes.resting_hub.resting_hub_scene import RestingHubScene
 from llm_rpg.scenes.scene import SceneTypes
 from llm_rpg.scenes.shop.shop_scene import ShopScene
+from llm_rpg.systems.battle.enemy import Enemy
 
 if TYPE_CHECKING:
     from llm_rpg.scenes.scene import Scene
@@ -19,10 +20,8 @@ if TYPE_CHECKING:
 
 class Game:
     def __init__(self):
-        self.llm = GroqLLM(
-            llm_cost_tracker=LLMCostTracker(), model="mixtral-8x7b-32768"
-        )
-        self.current_scene: Scene | None = self.get_shop_scene()
+        self.llm = GroqLLM(llm_cost_tracker=LLMCostTracker())
+        self.current_scene: Scene | None = self.get_resting_hub_scene()
         self.is_running = True
         self.hero = Hero(
             name="Thalor",

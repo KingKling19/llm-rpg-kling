@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 
+from sre_parse import State
 from typing import TYPE_CHECKING
 
 
 from llm_rpg.scenes.scene import SceneTypes
-from llm_rpg.scenes.shop.shop_states.shop_state import ShopState
+
 
 if TYPE_CHECKING:
     from llm_rpg.scenes.shop.shop_scene import ShopScene
@@ -18,7 +19,7 @@ class UserShopInput:
         self.valid = valid
 
 
-class ShopBuyingState(ShopState):
+class ShopBuyingState(State):
     def __init__(self, shop_scene: ShopScene):
         self.shop_scene = shop_scene
         self.last_user_shop_input = UserShopInput(

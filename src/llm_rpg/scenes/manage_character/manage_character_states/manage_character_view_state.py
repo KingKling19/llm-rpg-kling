@@ -4,10 +4,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 
-from llm_rpg.scenes.manage_character.manage_character_states.manage_character_state import (
-    ManageCharacterState,
-)
 from llm_rpg.scenes.scene import SceneTypes
+from llm_rpg.scenes.state import State
 
 if TYPE_CHECKING:
     from llm_rpg.scenes.manage_character.manage_character_scene import (
@@ -21,9 +19,9 @@ class ManageCharacterViewInput:
         self.is_valid = is_valid
 
 
-class ManageCharacterViewState(ManageCharacterState):
+class ManageCharacterViewState(State):
     def __init__(self, manage_character_scene: ManageCharacterScene):
-        super().__init__(manage_character_scene)
+        self.manage_character_scene = manage_character_scene
         self.has_updated = False
         self.massage_queue = []
 

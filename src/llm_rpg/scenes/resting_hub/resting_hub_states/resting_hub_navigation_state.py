@@ -3,10 +3,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from llm_rpg.scenes.resting_hub.resting_hub_states.resting_hub_state import (
-    RestingHubState,
-)
+
 from llm_rpg.scenes.scene import SceneTypes
+from llm_rpg.scenes.state import State
 
 if TYPE_CHECKING:
     from llm_rpg.scenes.resting_hub.resting_hub_scene import RestingHubScene
@@ -18,9 +17,9 @@ class UserNavigationInput:
         self.is_valid = is_valid
 
 
-class RestingHubNavigationState(RestingHubState):
+class RestingHubNavigationState(State):
     def __init__(self, resting_hub_scene: RestingHubScene):
-        super().__init__(resting_hub_scene)
+        self.resting_hub_scene = resting_hub_scene
         self.has_updated = False
         self.last_user_navigation_input = UserNavigationInput(-1, False)
         self.massage_queue = []
