@@ -6,8 +6,8 @@ from llm_rpg.systems.battle.battle_log import BattleLog
 
 
 class Enemy(Character):
-    def __init__(self, name: str, description: str, stats: Stats, llm: LLM):
-        super().__init__(name, description, stats)
+    def __init__(self, name: str, description: str, level: int, stats: Stats, llm: LLM):
+        super().__init__(name=name, description=description, level=level, stats=stats)
         self.llm = llm
 
     def get_next_action(self, battle_log: BattleLog, hero: Hero):
@@ -41,7 +41,7 @@ class Enemy(Character):
         return self.llm.generate_completion(prompt)
 
     def render(self):
-        print(f"👾 {self.name} lvl {self.stats.level}")
+        print(f"👾 {self.name} lvl {self.level}")
         print(self.description)
         print(
             """

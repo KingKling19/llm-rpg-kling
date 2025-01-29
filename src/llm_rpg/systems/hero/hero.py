@@ -7,17 +7,13 @@ class ProposedHeroAction:
     def __init__(
         self,
         action: str,
-        focus_cost: int,
         time_to_answer_seconds: float,
         is_valid: bool,
-        is_rest: bool,
         invalid_reason: str = None,
     ):
         self.action = action
-        self.focus_cost = focus_cost
         self.time_to_answer_seconds = time_to_answer_seconds
         self.is_valid = is_valid
-        self.is_rest = is_rest
         self.invalid_reason = invalid_reason
 
 
@@ -33,22 +29,18 @@ class Hero(Character):
         self,
         name: str,
         description: str,
+        level: int,
         stats: Stats,
         items: list[Item],
-        battles_won: int = 0,
         char_per_focus: int = 5,
-        focus_restoration_per_turn: int = 1,
-        focus_restoration_per_rest: int = 2,
+        battles_won: int = 0,
     ):
-        super().__init__(name, description, stats)
+        super().__init__(name=name, description=description, level=level, stats=stats)
         self.items = items
         self.char_per_focus = char_per_focus
-        self.focus_restoration_per_turn = focus_restoration_per_turn
-        self.focus_restoration_per_rest = focus_restoration_per_rest
-        self.is_resting = False
         self.battles_won = battles_won
         self.should_level_up = False
-        self.discovered_item = True
+        self.discovered_item = False
 
     def win_battle(self):
         self.battles_won += 1
@@ -60,74 +52,31 @@ class Hero(Character):
     def get_next_action(self) -> ProposedHeroAction:
         with Timer() as timer:
             proposed_input = input()
-        if proposed_input.lower().strip() == "rest":
-            return ProposedHeroAction(
-                action="Is tired and rests this turn.",
-                focus_cost=0,
-                is_valid=True,
-                is_rest=True,
-                time_to_answer_seconds=timer.interval,
-            )
-
         n_chars = len(proposed_input.replace(" ", ""))
+        if len(proposed_input) == 0:
+            return ProposedHeroAction(
+                action="Decided to do nothing this turn.",
+                is_valid=True,
+                # I don't want to give the user an answers speed bonus for doing nothing
+                time_to_answer_seconds=100,
+            )
         if n_chars > self.char_per_focus * self.stats.focus:
             return ProposedHeroAction(
                 action="",
-                focus_cost=0,
                 is_valid=False,
-                is_rest=False,
                 time_to_answer_seconds=timer.interval,
                 invalid_reason=f"Your current focus is {self.stats.focus} which only allows you to type "
                 f"{self.char_per_focus * self.stats.focus} characters. You typed {n_chars} non-whitespace characters. Try again.",
             )
-
-        used_focus = max(1, n_chars // self.char_per_focus)
-        return ProposedHeroAction(
-            action=proposed_input,
-            focus_cost=used_focus,
-            is_valid=True,
-            is_rest=False,
-            time_to_answer_seconds=timer.interval,
-        )
-
-    def end_turn_effects(self) -> EndOfTurnEffects:
-        if self.is_resting:
-            focus_to_restore = self.focus_restoration_per_rest
         else:
-            focus_to_restore = self.focus_restoration_per_turn
-
-        self.is_resting = False
-
-        if self.stats.focus < self.stats.max_focus:
-            focus_to_restore = min(
-                focus_to_restore, self.stats.max_focus - self.stats.focus
-            )
-            if focus_to_restore > 0:
-                self.stats.focus += focus_to_restore
-                if self.is_resting:
-                    return EndOfTurnEffects(
-                        focus_restored=focus_to_restore,
-                        hp_restored=0,
-                        description=f"You have rested and restored {focus_to_restore} focus points. "
-                        f"You now have {self.stats.focus} focus points.",
-                    )
-                else:
-                    return EndOfTurnEffects(
-                        focus_restored=focus_to_restore,
-                        hp_restored=0,
-                        description=f"You restore {focus_to_restore} focus points. "
-                        f"You now have {self.stats.focus} focus points.",
-                    )
-        else:
-            return EndOfTurnEffects(
-                focus_restored=0,
-                hp_restored=0,
-                description="You restore no focus points. As you have reached your maximum focus of "
-                f"{self.stats.max_focus}.",
+            return ProposedHeroAction(
+                action=proposed_input,
+                is_valid=True,
+                time_to_answer_seconds=timer.interval,
             )
 
     def render(self):
-        print(f"🦸 {self.name} lvl {self.stats.level}")
+        print(f"🦸 {self.name} lvl {self.level}")
         print(self.description)
         print(
             """

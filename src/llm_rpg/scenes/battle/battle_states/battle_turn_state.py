@@ -17,65 +17,55 @@ class BattleTurnState(State):
     def __init__(self, battle_scene: BattleScene):
         self.battle_scene = battle_scene
         self.is_hero_input_valid = True
-        self.hero_proposed_action_queue: list[ProposedHeroAction] = []
-        self.message_queue: list[str] = []
+        self.proposed_hero_action: ProposedHeroAction = None
 
     def handle_input(self):
-        action = self.battle_scene.hero.get_next_action()
-        self.hero_proposed_action_queue.append(action)
+        self.proposed_hero_action = self.battle_scene.hero.get_next_action()
 
     def _update_hero_turn(self):
-        proposed_action = self.hero_proposed_action_queue.pop(0)
-        if proposed_action.is_valid:
-            self.is_hero_input_valid = True
-            if proposed_action.is_rest:
-                # TODO check if I should send this to the battle_ai
-                self.battle_scene.hero.is_resting = True
-            self.battle_scene.hero.stats.focus -= proposed_action.focus_cost
-            action_effect = self.battle_scene.battle_ai.determine_action_effect(
-                proposed_action_attacker=proposed_action.action,
-                attacking_character=self.battle_scene.hero,
-                defending_character=self.battle_scene.enemy,
-                battle_log_string=self.battle_scene.battle_log.to_string_for_battle_ai(),
-            )
+        action_effect = self.battle_scene.battle_ai.determine_action_effect(
+            proposed_action_attacker=self.proposed_hero_action.action,
+            attacking_character=self.battle_scene.hero,
+            defending_character=self.battle_scene.enemy,
+            battle_log_string=self.battle_scene.battle_log.to_string_for_battle_ai(),
+        )
 
-            n_new_words_in_action = (
-                self.battle_scene.creativity_tracker.count_new_words_in_action(
-                    action=proposed_action.action
-                )
+        n_new_words_in_action = (
+            self.battle_scene.creativity_tracker.count_new_words_in_action(
+                action=self.proposed_hero_action.action
             )
-            n_overused_words_in_action = (
-                self.battle_scene.creativity_tracker.count_overused_words_in_action(
-                    action=proposed_action.action
-                )
+        )
+        n_overused_words_in_action = (
+            self.battle_scene.creativity_tracker.count_overused_words_in_action(
+                action=self.proposed_hero_action.action
             )
-            damage_calculation_result = (
-                self.battle_scene.damage_calculator.calculate_damage(
-                    attack=self.battle_scene.hero.stats.attack,
-                    defense=self.battle_scene.enemy.stats.defense,
-                    feasibility=action_effect.feasibility,
-                    potential_damage=action_effect.potential_damage,
-                    n_new_words_in_action=n_new_words_in_action,
-                    n_overused_words_in_action=n_overused_words_in_action,
-                    answer_speed_s=proposed_action.time_to_answer_seconds,
-                )
+        )
+        damage_calculation_result = (
+            self.battle_scene.damage_calculator.calculate_damage(
+                attack=self.battle_scene.hero.stats.attack,
+                defense=self.battle_scene.enemy.stats.defense,
+                feasibility=action_effect.feasibility,
+                potential_damage=action_effect.potential_damage,
+                n_new_words_in_action=n_new_words_in_action,
+                n_overused_words_in_action=n_overused_words_in_action,
+                answer_speed_s=self.proposed_hero_action.time_to_answer_seconds,
             )
-            self.battle_scene.enemy.stats.hp -= damage_calculation_result.total_dmg
-            if self.battle_scene.enemy.stats.hp <= 0:
-                self.battle_scene.enemy.stats.hp = 0
-            self.battle_scene.creativity_tracker.add_action(proposed_action.action)
-            self.battle_scene.battle_log.add_event(
-                BattleEvent(
-                    is_hero_turn=True,
-                    character_name=self.battle_scene.hero.name,
-                    proposed_action=proposed_action.action,
-                    effect_description=action_effect.effect_description,
-                    damage_calculation_result=damage_calculation_result,
-                )
+        )
+        self.battle_scene.enemy.stats.hp -= damage_calculation_result.total_dmg
+        if self.battle_scene.enemy.stats.hp <= 0:
+            self.battle_scene.enemy.stats.hp = 0
+        self.battle_scene.creativity_tracker.add_action(
+            self.proposed_hero_action.action
+        )
+        self.battle_scene.battle_log.add_event(
+            BattleEvent(
+                is_hero_turn=True,
+                character_name=self.battle_scene.hero.name,
+                proposed_action=self.proposed_hero_action.action,
+                effect_description=action_effect.effect_description,
+                damage_calculation_result=damage_calculation_result,
             )
-        else:
-            self.message_queue.append(proposed_action.invalid_reason)
-            self.is_hero_input_valid = False
+        )
 
     def _update_enemy_turn(self):
         proposed_enemy_action = self.battle_scene.enemy.get_next_action(
@@ -98,10 +88,12 @@ class BattleTurnState(State):
                 answer_speed_s=1000,
             )
         )
+
         self.battle_scene.hero.stats.hp -= damage_calculation_result.total_dmg
+
         if self.battle_scene.hero.stats.hp < 0:
             self.battle_scene.hero.stats.hp = 0
-        self.battle_scene.creativity_tracker.add_action(proposed_enemy_action)
+
         self.battle_scene.battle_log.add_event(
             BattleEvent(
                 is_hero_turn=False,
@@ -111,57 +103,49 @@ class BattleTurnState(State):
                 damage_calculation_result=damage_calculation_result,
             )
         )
-        if self.battle_scene.hero.stats.hp <= 0:
-            self.battle_scene.change_state(BattleStates.END)
-
-    def _update_end_of_turn_effects(self):
-        end_of_turn_effects = self.battle_scene.hero.end_turn_effects()
-        self.message_queue.append(end_of_turn_effects.description)
 
     def update(self):
-        self._update_hero_turn()
-        if self.battle_scene.enemy.stats.hp <= 0:
-            self.battle_scene.change_state(BattleStates.END)
-            return
-        self._update_enemy_turn()
-        if self.battle_scene.hero.stats.hp <= 0:
-            self.battle_scene.change_state(BattleStates.END)
-            return
-        self._update_end_of_turn_effects()
-
-    def _render_message_queue(self):
-        for message in self.message_queue:
-            print(message)
-        self.message_queue = []
+        if self.proposed_hero_action.is_valid:
+            self._update_hero_turn()
+            if self.battle_scene.enemy.stats.hp <= 0:
+                self.battle_scene.change_state(BattleStates.END)
+                return
+            self._update_enemy_turn()
+            if self.battle_scene.hero.stats.hp <= 0:
+                self.battle_scene.change_state(BattleStates.END)
+                return
 
     def _render_character_stats(self):
+        print("--- Current Stats --- \n")
         print(
-            f"{self.battle_scene.hero.name} HP: {self.battle_scene.hero.stats.hp}/{self.battle_scene.hero.stats.max_hp} Focus: {self.battle_scene.hero.stats.focus}/{self.battle_scene.hero.stats.max_focus}"
+            f"{self.battle_scene.hero.name} HP: {self.battle_scene.hero.stats.hp}/{self.battle_scene.hero.stats.max_hp}"
         )
         print(
             f"{self.battle_scene.enemy.name} HP: {self.battle_scene.enemy.stats.hp}/{self.battle_scene.enemy.stats.max_hp}"
         )
 
+    def _render_ask_for_hero_action(self):
+        print("What do you want to do?")
+
+    def _render_invalid_hero_action(self):
+        print("")
+        print("Action invalid because:")
+        print(self.proposed_hero_action.invalid_reason)
+
+    def _render_battle_log(self):
+        if self.battle_scene.battle_log.events:
+            print("")
+            print("--- The following events took place... --- \n")
+            string_of_last_2_events = (
+                self.battle_scene.battle_log.get_string_of_last_2_events()
+            )
+            print(string_of_last_2_events)
+
     def render(self):
-        if not self.is_hero_input_valid:
-            print("")
-            print("Action invalid because:")
-            self._render_message_queue()
-            print("")
-            print("What do you want to do? You can also type 'rest' to rest this turn.")
+        if self.proposed_hero_action and (not self.proposed_hero_action.is_valid):
+            self._render_invalid_hero_action()
         else:
-            if self.battle_scene.battle_log.events:
-                print("")
-                print("--- The following events took place... --- \n")
-                string_of_last_2_events = (
-                    self.battle_scene.battle_log.get_string_of_last_2_events()
-                )
-                print(string_of_last_2_events)
-            if self.message_queue:
-                print("--- End of turn status updates --- \n")
-                self._render_message_queue()
-                print("")
-            print("--- Current Stats --- \n")
+            self._render_battle_log()
             self._render_character_stats()
-            print("")
-            print("What do you want to do? You can also type 'rest' to rest this turn.")
+        print("")
+        self._render_ask_for_hero_action()

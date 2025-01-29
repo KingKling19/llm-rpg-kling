@@ -23,7 +23,7 @@ class BattleEndState(State):
 
     def _render_character_stats(self):
         print(
-            f"{self.battle_scene.hero.name} HP: {self.battle_scene.hero.stats.hp}/{self.battle_scene.hero.stats.max_hp} Focus: {self.battle_scene.hero.stats.focus}/{self.battle_scene.hero.stats.max_focus}"
+            f"{self.battle_scene.hero.name} HP: {self.battle_scene.hero.stats.hp}/{self.battle_scene.hero.stats.max_hp}"
         )
         print(
             f"{self.battle_scene.enemy.name} HP: {self.battle_scene.enemy.stats.hp}/{self.battle_scene.enemy.stats.max_hp}"

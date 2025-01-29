@@ -22,7 +22,8 @@ class Game:
         self.hero = Hero(
             name="Thalor",
             description="A fierce warrior with a mysterious past and unmatched swordsmanship",
-            stats=Stats(level=5, attack=100, defense=10, focus=20, hp=30),
+            level=1,
+            stats=Stats(attack=10, defense=10, focus=20, hp=30),
             items=[],
         )
         self.current_scene: Scene | None = self.get_resting_hub_scene()
@@ -31,7 +32,8 @@ class Game:
         enemy = Enemy(
             name="Zephyros",
             description="A cunning and ancient dragon with scales that shimmer like the night sky",
-            stats=Stats(level=5, attack=10, defense=10, focus=20, hp=30),
+            level=1,
+            stats=Stats(attack=10, defense=10, focus=20, hp=30),
             llm=self.llm,
         )
 
