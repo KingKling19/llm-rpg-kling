@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from llm_rpg.scenes.resting_hub.resting_hub_states.resting_hub_get_item_state import (
+    RestingHubGetItemState,
+)
 from llm_rpg.scenes.resting_hub.resting_hub_states.resting_hub_level_up_state import (
     RestingHubLevelUpState,
 )
@@ -28,6 +31,8 @@ class RestingHubScene(Scene):
     def get_initial_state(self, game: Game) -> State:
         if game.hero.should_level_up:
             return RestingHubLevelUpState(self)
+        elif game.hero.discovered_item:
+            return RestingHubGetItemState(self)
         else:
             return RestingHubNavigationState(self)
 

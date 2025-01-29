@@ -23,7 +23,6 @@ class Game:
             name="Thalor",
             description="A fierce warrior with a mysterious past and unmatched swordsmanship",
             stats=Stats(level=5, attack=100, defense=10, focus=20, hp=30),
-            gold=100,
             items=[],
         )
         self.current_scene: Scene | None = self.get_resting_hub_scene()

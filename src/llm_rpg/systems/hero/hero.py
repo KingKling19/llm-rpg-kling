@@ -34,7 +34,6 @@ class Hero(Character):
         name: str,
         description: str,
         stats: Stats,
-        gold: int,
         items: list[Item],
         battles_won: int = 0,
         char_per_focus: int = 5,
@@ -42,7 +41,6 @@ class Hero(Character):
         focus_restoration_per_rest: int = 2,
     ):
         super().__init__(name, description, stats)
-        self.gold = gold
         self.items = items
         self.char_per_focus = char_per_focus
         self.focus_restoration_per_turn = focus_restoration_per_turn
@@ -50,11 +48,14 @@ class Hero(Character):
         self.is_resting = False
         self.battles_won = battles_won
         self.should_level_up = False
+        self.discovered_item = True
 
     def win_battle(self):
         self.battles_won += 1
         if self.battles_won % 3 == 0:
             self.should_level_up = True
+        if self.battles_won % 2 == 0:
+            self.discovered_item = True
 
     def get_next_action(self) -> ProposedHeroAction:
         with Timer() as timer:
