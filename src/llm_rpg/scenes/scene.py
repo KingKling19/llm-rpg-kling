@@ -1,5 +1,5 @@
 from __future__ import annotations
-from abc import ABC
+from abc import ABC, abstractmethod
 
 from enum import Enum
 from typing import TYPE_CHECKING
@@ -12,17 +12,17 @@ if TYPE_CHECKING:
 
 class SceneTypes(Enum):
     BATTLE = "battle"
-    SHOP = "shop"
-    MANAGE_CHARACTER = "manage_character"
     RESTING_HUB = "resting_hub"
 
 
 class Scene(ABC):
-    def __init__(self, game: Game):
+    def __init__(self, game: Game, current_state: State):
         self.game = game
+        self.current_state = current_state
 
-    def change_state(self, new_state: State):
-        self.current_state = new_state
+    @abstractmethod
+    def change_state(self, new_state: Enum):
+        pass
 
     def handle_input(self):
         self.current_state.handle_input()

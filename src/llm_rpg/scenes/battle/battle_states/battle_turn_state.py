@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from llm_rpg.scenes.battle.battle_states.battle_states import BattleStates
 from llm_rpg.systems.hero.hero import ProposedHeroAction
 from llm_rpg.systems.battle.battle_log import BattleEvent
 from llm_rpg.scenes.battle.battle_states.battle_end_state import BattleEndState
@@ -111,7 +112,7 @@ class BattleTurnState(State):
             )
         )
         if self.battle_scene.hero.stats.hp <= 0:
-            self.battle_scene.change_state(BattleEndState(self.battle_scene))
+            self.battle_scene.change_state(BattleStates.END)
 
     def _update_end_of_turn_effects(self):
         end_of_turn_effects = self.battle_scene.hero.end_turn_effects()
@@ -120,11 +121,11 @@ class BattleTurnState(State):
     def update(self):
         self._update_hero_turn()
         if self.battle_scene.enemy.stats.hp <= 0:
-            self.battle_scene.change_state(BattleEndState(self.battle_scene))
+            self.battle_scene.change_state(BattleStates.END)
             return
         self._update_enemy_turn()
         if self.battle_scene.hero.stats.hp <= 0:
-            self.battle_scene.change_state(BattleEndState(self.battle_scene))
+            self.battle_scene.change_state(BattleStates.END)
             return
         self._update_end_of_turn_effects()
 

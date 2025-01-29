@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from llm_rpg.scenes.battle.battle_states.battle_turn_state import BattleTurnState
+from llm_rpg.scenes.battle.battle_states.battle_states import BattleStates
 from llm_rpg.scenes.state import State
 
 if TYPE_CHECKING:
@@ -15,10 +15,10 @@ class BattleStartState(State):
         self.battle_scene = battle_scene
 
     def handle_input(self):
-        _ = input()
+        pass
 
     def update(self):
-        self.battle_scene.change_state(BattleTurnState(self.battle_scene))
+        self.battle_scene.change_state(BattleStates.TURN)
 
     def render(self):
         self.battle_scene.hero.render()
