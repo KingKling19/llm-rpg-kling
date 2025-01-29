@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 
-from llm_rpg.objects.hero import Hero
+from llm_rpg.systems.hero.hero import Hero
 from llm_rpg.systems.battle.battle_ai import BattleAI
 from llm_rpg.systems.battle.battle_log import BattleLog
 

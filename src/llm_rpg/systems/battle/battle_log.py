@@ -16,7 +16,7 @@ class BattleEvent(BaseModel):
 
 class BattleLog:
     def __init__(self):
-        self.events = []
+        self.events: list[BattleEvent] = []
 
     def add_event(self, event: BattleEvent):
         self.events.append(event)

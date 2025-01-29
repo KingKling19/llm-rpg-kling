@@ -1,7 +1,7 @@
 from textwrap import dedent
 from llm_rpg.llm.llm import LLM
 from llm_rpg.objects.character import Character, Stats
-from llm_rpg.objects.hero import Hero
+from llm_rpg.systems.hero.hero import Hero
 from llm_rpg.systems.battle.battle_log import BattleLog
 
 

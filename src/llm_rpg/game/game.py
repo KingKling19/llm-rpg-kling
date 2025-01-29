@@ -2,7 +2,7 @@ from __future__ import annotations
 from llm_rpg.llm.llm import GroqLLM
 from llm_rpg.llm.llm_cost_tracker import LLMCostTracker
 from llm_rpg.objects.character import Stats
-from llm_rpg.objects.hero import Hero
+from llm_rpg.systems.hero.hero import Hero
 from llm_rpg.systems.battle.battle_ai import BattleAI
 from llm_rpg.scenes.battle.battle_scene import BattleScene
 
