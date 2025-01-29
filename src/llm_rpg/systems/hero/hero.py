@@ -36,6 +36,7 @@ class Hero(Character):
         stats: Stats,
         gold: int,
         items: list[Item],
+        battles_won: int = 0,
         char_per_focus: int = 5,
         focus_restoration_per_turn: int = 1,
         focus_restoration_per_rest: int = 2,
@@ -47,6 +48,13 @@ class Hero(Character):
         self.focus_restoration_per_turn = focus_restoration_per_turn
         self.focus_restoration_per_rest = focus_restoration_per_rest
         self.is_resting = False
+        self.battles_won = battles_won
+        self.should_level_up = False
+
+    def win_battle(self):
+        self.battles_won += 1
+        if self.battles_won % 3 == 0:
+            self.should_level_up = True
 
     def get_next_action(self) -> ProposedHeroAction:
         with Timer() as timer:

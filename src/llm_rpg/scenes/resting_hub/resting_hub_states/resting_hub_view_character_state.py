@@ -22,12 +22,12 @@ class RestingHubViewCharacterState(State):
         self.resting_hub_scene.game.change_scene(SceneTypes.RESTING_HUB)
 
     def _render_character(self):
-        hero = self.resting_hub_scene.game.hero
-        print(f"Name: {hero.name}")
-        print(f"Level: {hero.description}")
-        print(f"Attack: {hero.stats.attack}")
-        print(f"Defense: {hero.stats.defense}")
-        print(f"Focus: {hero.stats.focus}")
+        print("")
+        print(f"Name: {self.resting_hub_scene.game.hero.name}")
+        print(f"Level: {self.resting_hub_scene.game.hero.description}")
+        print(f"Attack: {self.resting_hub_scene.game.hero.stats.attack}")
+        print(f"Defense: {self.resting_hub_scene.game.hero.stats.defense}")
+        print(f"Focus: {self.resting_hub_scene.game.hero.stats.focus}")
 
     def render(self):
         self._render_character()

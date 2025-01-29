@@ -17,6 +17,8 @@ class BattleEndState(State):
         pass
 
     def update(self):
+        if self.battle_scene.hero.stats.hp > 0:
+            self.battle_scene.hero.win_battle()
         self.battle_scene.game.change_scene(SceneTypes.RESTING_HUB)
 
     def _render_character_stats(self):

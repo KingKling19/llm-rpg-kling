@@ -18,7 +18,6 @@ if TYPE_CHECKING:
 class Game:
     def __init__(self):
         self.llm = GroqLLM(llm_cost_tracker=LLMCostTracker())
-        self.current_scene: Scene | None = self.get_resting_hub_scene()
         self.is_running = True
         self.hero = Hero(
             name="Thalor",
@@ -27,6 +26,7 @@ class Game:
             gold=100,
             items=[],
         )
+        self.current_scene: Scene | None = self.get_resting_hub_scene()
 
     def get_battle_scene(self):
         enemy = Enemy(
