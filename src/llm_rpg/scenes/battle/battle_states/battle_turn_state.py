@@ -125,7 +125,10 @@ class BattleTurnState(State):
         )
 
     def _render_ask_for_hero_action(self):
-        print("What do you want to do?")
+        chars_can_type = self.battle_scene.hero.get_how_much_chars_can_type()
+        print(
+            f"What do you want to do? Your focus allows you to type {chars_can_type} characters."
+        )
 
     def _render_invalid_hero_action(self):
         print("")

@@ -43,6 +43,9 @@ class Enemy(Character):
     def render(self):
         print(f"👾 {self.name} lvl {self.level}")
         print(self.description)
+        print(f"HP: {self.stats.hp}")
+        print(f"Attack: {self.stats.attack}")
+        print(f"Defense: {self.stats.defense}")
         print(
             """
                       ___====-_  _-====___

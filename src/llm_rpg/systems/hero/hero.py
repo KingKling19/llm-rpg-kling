@@ -32,22 +32,11 @@ class Hero(Character):
         level: int,
         stats: Stats,
         items: list[Item],
-        char_per_focus: int = 5,
-        battles_won: int = 0,
     ):
         super().__init__(name=name, description=description, level=level, stats=stats)
         self.items = items
-        self.char_per_focus = char_per_focus
-        self.battles_won = battles_won
         self.should_level_up = False
         self.discovered_item = False
-
-    def win_battle(self):
-        self.battles_won += 1
-        if self.battles_won % 3 == 0:
-            self.should_level_up = True
-        if self.battles_won % 2 == 0:
-            self.discovered_item = True
 
     def get_next_action(self) -> ProposedHeroAction:
         with Timer() as timer:
@@ -60,13 +49,13 @@ class Hero(Character):
                 # I don't want to give the user an answers speed bonus for doing nothing
                 time_to_answer_seconds=100,
             )
-        if n_chars > self.char_per_focus * self.stats.focus:
+        if n_chars > self.stats.focus:
             return ProposedHeroAction(
                 action="",
                 is_valid=False,
                 time_to_answer_seconds=timer.interval,
                 invalid_reason=f"Your current focus is {self.stats.focus} which only allows you to type "
-                f"{self.char_per_focus * self.stats.focus} characters. You typed {n_chars} non-whitespace characters. Try again.",
+                f"{self.stats.focus} characters. You typed {n_chars} non-whitespace characters. Try again.",
             )
         else:
             return ProposedHeroAction(
@@ -75,8 +64,15 @@ class Hero(Character):
                 time_to_answer_seconds=timer.interval,
             )
 
+    def get_how_much_chars_can_type(self) -> int:
+        return self.stats.focus
+
     def render(self):
         print(f"🦸 {self.name} lvl {self.level}")
+        print(f"HP: {self.stats.hp}")
+        print(f"Focus: {self.stats.focus}")
+        print(f"Attack: {self.stats.attack}")
+        print(f"Defense: {self.stats.defense}")
         print(self.description)
         print(
             """

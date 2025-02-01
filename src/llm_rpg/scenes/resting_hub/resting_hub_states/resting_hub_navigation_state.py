@@ -47,6 +47,7 @@ class RestingHubNavigationState(State):
         if not self.has_updated:
             print("")
             print("Welcome to the resting hub!")
+            print(f"Battles won: {self.resting_hub_scene.game.battles_won}")
             print("INSERT ASCII ART HERE")
             print("What would you like to do?")
             print("[1] View Character")

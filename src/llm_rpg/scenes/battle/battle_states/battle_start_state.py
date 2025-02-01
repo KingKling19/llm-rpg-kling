@@ -20,7 +20,10 @@ class BattleStartState(State):
     def update(self):
         self.battle_scene.change_state(BattleStates.TURN)
 
+    def _render_battle_number(self):
+        print(f"Battle {self.battle_scene.game.battles_won + 1}")
+
     def render(self):
+        self._render_battle_number()
         self.battle_scene.hero.render()
         self.battle_scene.enemy.render()
-        print("Press Enter to start the battle")
