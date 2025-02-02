@@ -1,7 +1,10 @@
+from dataclasses import dataclass
+
+
+@dataclass
 class UserNavigationInput:
-    def __init__(self, choice: int, is_valid: bool):
-        self.choice = choice
-        self.is_valid = is_valid
+    choice: int
+    is_valid: bool
 
 
 def get_user_navigation_input(valid_choices: list[int]) -> UserNavigationInput:

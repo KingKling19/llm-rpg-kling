@@ -13,6 +13,13 @@ class ItemType(Enum):
     ACCESSORY = "accessory"
 
 
+class Rarity(Enum):
+    COMMON = "common"
+    UNCOMMON = "uncommon"
+    RARE = "rare"
+    SECRET = "secret"
+
+
 class LLMScalingBoostType(Enum):
     FEASIBILITY = "feasibility"
     POTENTIAL_DAMAGE = "potential_damage"
@@ -55,7 +62,7 @@ class Item(ABC):
         name: str,
         description: str,
         item_type: ItemType,
-        rarity: int,
+        rarity: Rarity,
     ):
         self.name = name
         self.description = description
@@ -107,14 +114,7 @@ class Item(ABC):
         return []
 
     def rarity_to_string(self) -> str:
-        if self.rarity == 1:
-            return "Common"
-        elif self.rarity == 2:
-            return "Uncommon"
-        elif self.rarity == 3:
-            return "Rare"
-        elif self.rarity == 4:
-            return "Secret"
+        return self.rarity.value
 
 
 # ITEMS
@@ -130,7 +130,7 @@ class BaseballBat(Item):
             name="Baseball Bat",
             description="A simple baseball bat. Increases attack by 10.",
             item_type=ItemType.WEAPON,
-            rarity=1,
+            rarity=Rarity.COMMON,
         )
 
     def boost_attack(self, current_attack: int) -> int:
@@ -143,7 +143,7 @@ class TurtleShell(Item):
             name="Turtle Shell",
             description="A turtle shell. Increases defense by 10.",
             item_type=ItemType.ARMOR,
-            rarity=1,
+            rarity=Rarity.COMMON,
         )
 
     def boost_defense(self, current_defense: int) -> int:
@@ -156,7 +156,7 @@ class AdderallBox(Item):
             name="Adderall Box",
             description="Box of pills that enhances mental clarity. Increases focus by 10.",
             item_type=ItemType.ACCESSORY,
-            rarity=1,
+            rarity=Rarity.COMMON,
         )
 
     def boost_focus(self, current_focus: int) -> int:
@@ -169,7 +169,7 @@ class HeartTransplant(Item):
             name="Heart Transplant",
             description="A heart transplant. Increases max hp by 10.",
             item_type=ItemType.ACCESSORY,
-            rarity=1,
+            rarity=Rarity.COMMON,
         )
 
     def boost_max_hp(self, current_max_hp: int) -> int:
@@ -185,7 +185,7 @@ class PoetryBook(Item):
             name="Poetry Book",
             description="A book of poetry. + 5% damage for each new word in action that has not been used before in the current battle. However, also -5% damage for each word used more than twice.",
             item_type=ItemType.ACCESSORY,
-            rarity=2,
+            rarity=Rarity.UNCOMMON,
         )
 
     def get_bonus_multipliers(
@@ -231,7 +231,7 @@ class AdrenalinePump(Item):
             name="Adrenaline Pump",
             description="A pump that increases adrenaline. Do 30% more damage when you typed your answer in faster than 10 seconds.",
             item_type=ItemType.ACCESSORY,
-            rarity=2,
+            rarity=Rarity.UNCOMMON,
         )
 
     def get_bonus_multipliers(

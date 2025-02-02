@@ -1,5 +1,14 @@
+from typing import List
 from llm_rpg.objects.character import Character, Stats
-from llm_rpg.objects.item import AdrenalinePump, Item, PoetryBook, TurtleShell
+from llm_rpg.objects.item import (
+    AdderallBox,
+    AdrenalinePump,
+    BaseballBat,
+    HeartTransplant,
+    Item,
+    PoetryBook,
+    TurtleShell,
+)
 from llm_rpg.utils.timer import Timer
 
 
@@ -19,7 +28,7 @@ class ProposedHeroAction:
 
 class Inventory:
     def __init__(self, max_items: int):
-        self.items = [TurtleShell(), PoetryBook(), AdrenalinePump()]
+        self.items: List[Item] = [AdderallBox(), HeartTransplant(), BaseballBat()]
         self.max_items = max_items
 
     def add_item(self, item: Item):
@@ -31,6 +40,9 @@ class Inventory:
     def remove_item(self, item: Item):
         self.items.remove(item)
 
+    def is_full(self) -> bool:
+        return len(self.items) >= self.max_items
+
 
 class Hero(Character):
     def __init__(
@@ -39,13 +51,27 @@ class Hero(Character):
         description: str,
         level: int,
         base_stats: Stats,
-        max_items: int = 5,
+        max_items: int = 3,
     ):
         super().__init__(
             name=name, description=description, level=level, base_stats=base_stats
         )
         self.inventory = Inventory(max_items=max_items)
         self.should_level_up = False
+        self.discovered_item = True
+
+    def dont_pick_up_item(self):
+        self.discovered_item = False
+
+    def replace_item_with_discovered_item(
+        self, item_to_remove: Item, discovered_item: Item
+    ):
+        self.inventory.remove_item(item_to_remove)
+        self.inventory.add_item(discovered_item)
+        self.discovered_item = False
+
+    def pick_up_discovered_item(self, item: Item):
+        self.inventory.add_item(item)
         self.discovered_item = False
 
     def get_current_stats(self) -> Stats:
