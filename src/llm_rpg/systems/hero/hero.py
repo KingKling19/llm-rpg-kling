@@ -1,13 +1,7 @@
 from typing import List
-from llm_rpg.objects.character import Character, Stats
+from llm_rpg.objects.character import Character, StatTypes, Stats
 from llm_rpg.objects.item import (
-    AdderallBox,
-    AdrenalinePump,
-    BaseballBat,
-    HeartTransplant,
     Item,
-    PoetryBook,
-    TurtleShell,
 )
 from llm_rpg.utils.timer import Timer
 
@@ -28,7 +22,7 @@ class ProposedHeroAction:
 
 class Inventory:
     def __init__(self, max_items: int):
-        self.items: List[Item] = [AdderallBox(), HeartTransplant(), BaseballBat()]
+        self.items: List[Item] = []
         self.max_items = max_items
 
     def add_item(self, item: Item):
@@ -57,8 +51,19 @@ class Hero(Character):
             name=name, description=description, level=level, base_stats=base_stats
         )
         self.inventory = Inventory(max_items=max_items)
+        self.should_level_up = True
+        self.discovered_item = False
+
+    def level_up(self, stat_type: StatTypes, amount: int):
+        if stat_type == StatTypes.ATTACK:
+            self.base_stats.attack += amount
+        elif stat_type == StatTypes.DEFENSE:
+            self.base_stats.defense += amount
+        elif stat_type == StatTypes.FOCUS:
+            self.base_stats.focus += amount
+        elif stat_type == StatTypes.MAX_HP:
+            self.base_stats.max_hp += amount
         self.should_level_up = False
-        self.discovered_item = True
 
     def dont_pick_up_item(self):
         self.discovered_item = False

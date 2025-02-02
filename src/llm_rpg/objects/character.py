@@ -1,12 +1,20 @@
+from enum import Enum
+from dataclasses import dataclass
+
+
+class StatTypes(Enum):
+    ATTACK = "attack"
+    DEFENSE = "defense"
+    FOCUS = "focus"
+    MAX_HP = "max_hp"
+
+
+@dataclass
 class Stats:
-    def __init__(self, attack: int, defense: int, focus: int, max_hp: int):
-        self.attack = attack
-        # reduces damage taken
-        self.defense = defense
-        # determines amount of letters you can type
-        self.focus = focus
-        # determines how much damage you can take
-        self.max_hp = max_hp
+    attack: int
+    defense: int
+    focus: int
+    max_hp: int
 
 
 class Character:

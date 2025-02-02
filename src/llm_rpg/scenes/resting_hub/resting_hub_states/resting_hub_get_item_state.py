@@ -9,6 +9,7 @@ from llm_rpg.scenes.resting_hub.resting_hub_states.resting_hub_states import (
     RestingHubStates,
 )
 from llm_rpg.scenes.state import State
+from llm_rpg.utils.rendering import render_state_transition_header
 from llm_rpg.utils.user_navigation_input import (
     UserNavigationInput,
     get_user_navigation_input,
@@ -28,6 +29,7 @@ class RestingHubGetItemState(State):
         self.is_replacing_item = False
         self.display_discovered_items = True
         self.display_current_items_to_drop = False
+        self.display_state_transition_header = True
 
     def _initialize_items(self):
         return [TurtleShell(), PoetryBook(), AdrenalinePump()]
@@ -47,7 +49,7 @@ class RestingHubGetItemState(State):
         # reset display flags
         self.display_discovered_items = False
         self.display_current_items_to_drop = False
-
+        self.display_state_transition_header = False
         if not self.resting_hub_scene.game.hero.discovered_item:
             self.resting_hub_scene.change_state(RestingHubStates.NAVIGATION)
         else:
@@ -128,6 +130,8 @@ class RestingHubGetItemState(State):
         self.message_queue = []
 
     def render(self):
+        if self.display_state_transition_header:
+            render_state_transition_header("Item Discovery")
         if self.display_discovered_items:
             self._display_discovered_items()
         elif self.display_current_items_to_drop:

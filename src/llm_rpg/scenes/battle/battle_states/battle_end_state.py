@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from llm_rpg.scenes.scene import SceneTypes
 from llm_rpg.scenes.state import State
+from llm_rpg.utils.rendering import render_state_transition_header
 
 if TYPE_CHECKING:
     from llm_rpg.scenes.battle.battle_scene import BattleScene
@@ -12,11 +13,14 @@ if TYPE_CHECKING:
 class BattleEndState(State):
     def __init__(self, battle_scene: BattleScene):
         self.battle_scene = battle_scene
+        self.display_state_transition_header = True
 
     def handle_input(self):
         pass
 
     def update(self):
+        self.display_state_transition_header = False
+
         if not self.battle_scene.hero.is_dead():
             self.battle_scene.game.battles_won += 1
             if self.battle_scene.game.battles_won % 2 == 0:
@@ -37,6 +41,8 @@ class BattleEndState(State):
         )
 
     def render(self):
+        if self.display_state_transition_header:
+            render_state_transition_header("Battle Ended")
         if self.battle_scene.battle_log.events:
             print("")
             print("--- The following events took place... --- \n")

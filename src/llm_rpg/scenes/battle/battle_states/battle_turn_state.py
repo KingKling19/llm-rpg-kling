@@ -9,6 +9,7 @@ from llm_rpg.scenes.battle.battle_states.battle_end_state import BattleEndState
 from typing import TYPE_CHECKING
 
 from llm_rpg.scenes.state import State
+from llm_rpg.utils.rendering import render_state_transition_header
 
 if TYPE_CHECKING:
     from llm_rpg.scenes.battle.battle_scene import BattleScene
@@ -19,6 +20,7 @@ class BattleTurnState(State):
         self.battle_scene = battle_scene
         self.is_hero_input_valid = True
         self.proposed_hero_action: ProposedHeroAction = None
+        self.display_state_transition_header = True
 
     def handle_input(self):
         self.proposed_hero_action = self.battle_scene.hero.get_next_action()
@@ -103,6 +105,7 @@ class BattleTurnState(State):
         )
 
     def update(self):
+        self.display_state_transition_header = False
         if self.proposed_hero_action.is_valid:
             self._update_hero_turn()
             if self.battle_scene.enemy.is_dead():
@@ -114,7 +117,7 @@ class BattleTurnState(State):
                 return
 
     def _render_character_stats(self):
-        print("--- Current Stats --- \n")
+        print("- Stats - \n")
         print(
             f"{self.battle_scene.hero.name} HP: {self.battle_scene.hero.hp}/{self.battle_scene.hero.get_current_stats().max_hp}"
         )
@@ -143,6 +146,8 @@ class BattleTurnState(State):
             print(string_of_last_2_events)
 
     def render(self):
+        if self.display_state_transition_header:
+            render_state_transition_header("Battle has started")
         if self.proposed_hero_action and (not self.proposed_hero_action.is_valid):
             self._render_invalid_hero_action()
         else:
