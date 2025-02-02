@@ -1,17 +1,14 @@
-from pydantic import BaseModel
-
+from dataclasses import dataclass
 from llm_rpg.systems.battle.damage_calculator import DamageCalculationResult
 
 
-class BattleEvent(BaseModel):
+@dataclass
+class BattleEvent:
     is_hero_turn: bool
     character_name: str
     proposed_action: str
     effect_description: str
     damage_calculation_result: DamageCalculationResult
-
-    class Config:
-        arbitrary_types_allowed = True
 
 
 class BattleLog:
