@@ -1,47 +1,257 @@
-class StatBoost:
-    def __init__(self, attack: int, defense: int, focus: int, hp: int):
-        self.attack = attack
-        self.defense = defense
-        self.focus = focus
-        self.hp = hp
+from abc import ABC
+from dataclasses import dataclass
+from enum import Enum
+from typing import List
 
 
-class Item:
+# in the future we might limit users to 1 of each item type
+class ItemType(Enum):
+    WEAPON = "weapon"
+    BOOTS = "boots"
+    HELMET = "helmet"
+    ARMOR = "armor"
+    ACCESSORY = "accessory"
+
+
+class LLMScalingBoostType(Enum):
+    FEASIBILITY = "feasibility"
+    POTENTIAL_DAMAGE = "potential_damage"
+
+
+@dataclass
+class LLMScalingBoost:
+    item_name: str
+    boost_name: str
+    llm_scaling_boost_type: LLMScalingBoostType
+    base_scaling: float
+    boosted_scaling: float
+    is_applied: bool
+
+
+class ProcCondition(Enum):
+    N_NEW_WORDS_IN_ACTION = "new words in action"
+    N_OVERUSED_WORDS_IN_ACTION = "overused words in action"
+    ANSWER_SPEED_S = "answer speed (seconds)"
+
+
+@dataclass
+class ProcReason:
+    proc_condition: ProcCondition
+    condition_value: float
+
+
+@dataclass
+class BonusMultiplier:
+    item_name: str
+    boost_name: str
+    multiplier: float
+    is_procced: bool
+    proc_reason: ProcReason
+
+
+class Item(ABC):
     def __init__(
         self,
         name: str,
         description: str,
-        cost: int,
-        stat_boost: StatBoost,
+        item_type: ItemType,
         rarity: int,
     ):
         self.name = name
         self.description = description
-        self.cost = cost
-        self.stat_boost = stat_boost
+        self.item_type = item_type
         self.rarity = rarity
 
+    def boost_attack(self, current_attack: int) -> int:
+        return current_attack
 
-SWORD = Item(
-    name="Sword",
-    description="A sword that can cut through anything. Increases attack by 10.",
-    cost=100,
-    stat_boost=StatBoost(attack=10, defense=0, focus=0, hp=0),
-    rarity=1,
-)
+    def boost_defense(self, current_defense: int) -> int:
+        return current_defense
 
-SHIELD = Item(
-    name="Shield",
-    description="A shield that can block anything. Increases defense by 10.",
-    cost=100,
-    stat_boost=StatBoost(attack=0, defense=10, focus=0, hp=0),
-    rarity=1,
-)
+    def boost_focus(self, current_focus: int) -> int:
+        return current_focus
 
-CRYSTAL = Item(
-    name="Focus Crystal",
-    description="A mystical crystal that enhances mental clarity and concentration. Increases focus by 10.",
-    cost=100,
-    stat_boost=StatBoost(attack=0, defense=0, focus=10, hp=0),
-    rarity=1,
-)
+    def boost_max_hp(self, current_max_hp: int) -> int:
+        return current_max_hp
+
+    def boost_feasibility(self, current_feasibility: float) -> LLMScalingBoost:
+        return LLMScalingBoost(
+            item_name=self.name,
+            boost_name="none",
+            llm_scaling_boost_type=LLMScalingBoostType.FEASIBILITY,
+            base_scaling=current_feasibility,
+            boosted_scaling=current_feasibility,
+            is_applied=False,
+        )
+
+    def boost_potential_damage(
+        self, current_potential_damage: float
+    ) -> LLMScalingBoost:
+        return LLMScalingBoost(
+            item_name=self.name,
+            boost_name="none",
+            llm_scaling_boost_type=LLMScalingBoostType.POTENTIAL_DAMAGE,
+            base_scaling=current_potential_damage,
+            boosted_scaling=current_potential_damage,
+            is_applied=False,
+        )
+
+    def get_bonus_multipliers(
+        self,
+        # TODO: needs access to more information for more creative bonusses which
+        # target specific keywords etc.
+        n_new_words_in_action: int,
+        n_overused_words_in_action: int,
+        answer_speed_s: float,
+    ) -> List[BonusMultiplier]:
+        return []
+
+    def rarity_to_string(self) -> str:
+        if self.rarity == 1:
+            return "Common"
+        elif self.rarity == 2:
+            return "Uncommon"
+        elif self.rarity == 3:
+            return "Rare"
+        elif self.rarity == 4:
+            return "Secret"
+
+
+# ITEMS
+
+
+# COMMON ITEMS
+
+
+# BASE STAT BOOSTS
+class BaseballBat(Item):
+    def __init__(self):
+        super().__init__(
+            name="Baseball Bat",
+            description="A simple baseball bat. Increases attack by 10.",
+            item_type=ItemType.WEAPON,
+            rarity=1,
+        )
+
+    def boost_attack(self, current_attack: int) -> int:
+        return current_attack + 10
+
+
+class TurtleShell(Item):
+    def __init__(self):
+        super().__init__(
+            name="Turtle Shell",
+            description="A turtle shell. Increases defense by 10.",
+            item_type=ItemType.ARMOR,
+            rarity=1,
+        )
+
+    def boost_defense(self, current_defense: int) -> int:
+        return current_defense + 10
+
+
+class AdderallBox(Item):
+    def __init__(self):
+        super().__init__(
+            name="Adderall Box",
+            description="Box of pills that enhances mental clarity. Increases focus by 10.",
+            item_type=ItemType.ACCESSORY,
+            rarity=1,
+        )
+
+    def boost_focus(self, current_focus: int) -> int:
+        return current_focus + 10
+
+
+class HeartTransplant(Item):
+    def __init__(self):
+        super().__init__(
+            name="Heart Transplant",
+            description="A heart transplant. Increases max hp by 10.",
+            item_type=ItemType.ACCESSORY,
+            rarity=1,
+        )
+
+    def boost_max_hp(self, current_max_hp: int) -> int:
+        return current_max_hp + 10
+
+
+# BONUS DAMAGE MULTIPLIERS (should encourage specific playstyles)
+
+
+class PoetryBook(Item):
+    def __init__(self):
+        super().__init__(
+            name="Poetry Book",
+            description="A book of poetry. + 5% damage for each new word in action that has not been used before in the current battle. However, also -5% damage for each word used more than twice.",
+            item_type=ItemType.ACCESSORY,
+            rarity=2,
+        )
+
+    def get_bonus_multipliers(
+        self,
+        n_new_words_in_action: int,
+        n_overused_words_in_action: int,
+        answer_speed_s: float,
+    ) -> list[BonusMultiplier]:
+        # TODO don't return a bonus if there are no new words in action
+        bonus_multipliers = []
+        if n_new_words_in_action > 0:
+            bonus_multipliers.append(
+                BonusMultiplier(
+                    item_name=self.name,
+                    boost_name="New word bonus",
+                    multiplier=0.05 * n_new_words_in_action,
+                    is_procced=True,
+                    proc_reason=ProcReason(
+                        proc_condition=ProcCondition.N_NEW_WORDS_IN_ACTION,
+                        condition_value=n_new_words_in_action,
+                    ),
+                )
+            )
+        if n_overused_words_in_action > 0:
+            bonus_multipliers.append(
+                BonusMultiplier(
+                    item_name=self.name,
+                    boost_name="Overused word penalty",
+                    multiplier=-0.05 * n_overused_words_in_action,
+                    is_procced=True,
+                    proc_reason=ProcReason(
+                        proc_condition=ProcCondition.N_OVERUSED_WORDS_IN_ACTION,
+                        condition_value=n_overused_words_in_action,
+                    ),
+                )
+            )
+        return bonus_multipliers
+
+
+class AdrenalinePump(Item):
+    def __init__(self):
+        super().__init__(
+            name="Adrenaline Pump",
+            description="A pump that increases adrenaline. Do 30% more damage when you typed your answer in faster than 10 seconds.",
+            item_type=ItemType.ACCESSORY,
+            rarity=2,
+        )
+
+    def get_bonus_multipliers(
+        self,
+        n_new_words_in_action: int,
+        n_overused_words_in_action: int,
+        answer_speed_s: float,
+    ) -> list[BonusMultiplier]:
+        bonus_multipliers = []
+        if answer_speed_s < 10:
+            bonus_multipliers.append(
+                BonusMultiplier(
+                    item_name=self.name,
+                    boost_name="Answer speed bonus",
+                    multiplier=0.3,
+                    is_procced=True,
+                    proc_reason=ProcReason(
+                        proc_condition=ProcCondition.ANSWER_SPEED_S,
+                        condition_value=answer_speed_s,
+                    ),
+                )
+            )
+        return bonus_multipliers

@@ -46,8 +46,7 @@ class BattleLog:
                 f"- potential damage: {event.damage_calculation_result.potential_damage}\n\n"
                 f"Effect:\n"
                 f"{event.effect_description}\n\n"
-                f"Damage inflicted:\n"
-                f"{event.damage_calculation_result.to_string()}\n"
+                f"{event.damage_calculation_result.to_string_debug(is_hero_turn=event.is_hero_turn)}\n"
             )
             if i < len(last_2_events) - 1:
                 string_repr += "\n"

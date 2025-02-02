@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from llm_rpg.scenes.battle.battle_states.battle_states import BattleStates
+from llm_rpg.systems.battle.damage_calculator import DamageCalculationResult
 from llm_rpg.systems.hero.hero import ProposedHeroAction
 from llm_rpg.systems.battle.battle_log import BattleEvent
 from llm_rpg.scenes.battle.battle_states.battle_end_state import BattleEndState
@@ -40,20 +41,19 @@ class BattleTurnState(State):
                 action=self.proposed_hero_action.action
             )
         )
-        damage_calculation_result = (
+        damage_calculation_result: DamageCalculationResult = (
             self.battle_scene.damage_calculator.calculate_damage(
-                attack=self.battle_scene.hero.stats.attack,
-                defense=self.battle_scene.enemy.stats.defense,
+                attack=self.battle_scene.hero.get_current_stats().attack,
+                defense=self.battle_scene.enemy.get_current_stats().defense,
                 feasibility=action_effect.feasibility,
                 potential_damage=action_effect.potential_damage,
                 n_new_words_in_action=n_new_words_in_action,
                 n_overused_words_in_action=n_overused_words_in_action,
                 answer_speed_s=self.proposed_hero_action.time_to_answer_seconds,
+                equiped_items=self.battle_scene.hero.inventory.items,
             )
         )
-        self.battle_scene.enemy.stats.hp -= damage_calculation_result.total_dmg
-        if self.battle_scene.enemy.stats.hp <= 0:
-            self.battle_scene.enemy.stats.hp = 0
+        self.battle_scene.enemy.inflict_damage(damage_calculation_result.total_dmg)
         self.battle_scene.creativity_tracker.add_action(
             self.proposed_hero_action.action
         )
@@ -79,20 +79,18 @@ class BattleTurnState(State):
         )
         damage_calculation_result = (
             self.battle_scene.damage_calculator.calculate_damage(
-                attack=self.battle_scene.enemy.stats.attack,
-                defense=self.battle_scene.hero.stats.defense,
+                attack=self.battle_scene.enemy.get_current_stats().attack,
+                defense=self.battle_scene.hero.get_current_stats().defense,
                 feasibility=action_effect.feasibility,
                 potential_damage=action_effect.potential_damage,
                 n_new_words_in_action=0,
                 n_overused_words_in_action=0,
                 answer_speed_s=1000,
+                equiped_items=[],
             )
         )
 
-        self.battle_scene.hero.stats.hp -= damage_calculation_result.total_dmg
-
-        if self.battle_scene.hero.stats.hp < 0:
-            self.battle_scene.hero.stats.hp = 0
+        self.battle_scene.hero.inflict_damage(damage_calculation_result.total_dmg)
 
         self.battle_scene.battle_log.add_event(
             BattleEvent(
@@ -107,25 +105,25 @@ class BattleTurnState(State):
     def update(self):
         if self.proposed_hero_action.is_valid:
             self._update_hero_turn()
-            if self.battle_scene.enemy.stats.hp <= 0:
+            if self.battle_scene.enemy.is_dead():
                 self.battle_scene.change_state(BattleStates.END)
                 return
             self._update_enemy_turn()
-            if self.battle_scene.hero.stats.hp <= 0:
+            if self.battle_scene.hero.is_dead():
                 self.battle_scene.change_state(BattleStates.END)
                 return
 
     def _render_character_stats(self):
         print("--- Current Stats --- \n")
         print(
-            f"{self.battle_scene.hero.name} HP: {self.battle_scene.hero.stats.hp}/{self.battle_scene.hero.stats.max_hp}"
+            f"{self.battle_scene.hero.name} HP: {self.battle_scene.hero.hp}/{self.battle_scene.hero.get_current_stats().max_hp}"
         )
         print(
-            f"{self.battle_scene.enemy.name} HP: {self.battle_scene.enemy.stats.hp}/{self.battle_scene.enemy.stats.max_hp}"
+            f"{self.battle_scene.enemy.name} HP: {self.battle_scene.enemy.hp}/{self.battle_scene.enemy.get_current_stats().max_hp}"
         )
 
     def _render_ask_for_hero_action(self):
-        chars_can_type = self.battle_scene.hero.get_how_much_chars_can_type()
+        chars_can_type = self.battle_scene.hero.get_current_stats().focus
         print(
             f"What do you want to do? Your focus allows you to type {chars_can_type} characters."
         )

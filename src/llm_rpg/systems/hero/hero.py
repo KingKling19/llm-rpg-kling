@@ -1,5 +1,5 @@
 from llm_rpg.objects.character import Character, Stats
-from llm_rpg.objects.item import Item
+from llm_rpg.objects.item import AdrenalinePump, Item, PoetryBook, TurtleShell
 from llm_rpg.utils.timer import Timer
 
 
@@ -17,11 +17,19 @@ class ProposedHeroAction:
         self.invalid_reason = invalid_reason
 
 
-class EndOfTurnEffects:
-    def __init__(self, focus_restored: int, hp_restored: int, description: str):
-        self.focus_restored = focus_restored
-        self.hp_restored = hp_restored
-        self.description = description
+class Inventory:
+    def __init__(self, max_items: int):
+        self.items = [TurtleShell(), PoetryBook(), AdrenalinePump()]
+        self.max_items = max_items
+
+    def add_item(self, item: Item):
+        if len(self.items) < self.max_items:
+            self.items.append(item)
+        else:
+            raise ValueError("Inventory is full")
+
+    def remove_item(self, item: Item):
+        self.items.remove(item)
 
 
 class Hero(Character):
@@ -30,13 +38,30 @@ class Hero(Character):
         name: str,
         description: str,
         level: int,
-        stats: Stats,
-        items: list[Item],
+        base_stats: Stats,
+        max_items: int = 5,
     ):
-        super().__init__(name=name, description=description, level=level, stats=stats)
-        self.items = items
+        super().__init__(
+            name=name, description=description, level=level, base_stats=base_stats
+        )
+        self.inventory = Inventory(max_items=max_items)
         self.should_level_up = False
         self.discovered_item = False
+
+    def get_current_stats(self) -> Stats:
+        # need to make a copy of the base stats because else we are going to modify the base stats
+        base_stats = Stats(
+            attack=self.base_stats.attack,
+            defense=self.base_stats.defense,
+            focus=self.base_stats.focus,
+            max_hp=self.base_stats.max_hp,
+        )
+        for item in self.inventory.items:
+            base_stats.attack = item.boost_attack(base_stats.attack)
+            base_stats.defense = item.boost_defense(base_stats.defense)
+            base_stats.focus = item.boost_focus(base_stats.focus)
+            base_stats.max_hp = item.boost_max_hp(base_stats.max_hp)
+        return base_stats
 
     def get_next_action(self) -> ProposedHeroAction:
         with Timer() as timer:
@@ -49,13 +74,13 @@ class Hero(Character):
                 # I don't want to give the user an answers speed bonus for doing nothing
                 time_to_answer_seconds=100,
             )
-        if n_chars > self.stats.focus:
+        if n_chars > self.get_current_stats().focus:
             return ProposedHeroAction(
                 action="",
                 is_valid=False,
                 time_to_answer_seconds=timer.interval,
-                invalid_reason=f"Your current focus is {self.stats.focus} which only allows you to type "
-                f"{self.stats.focus} characters. You typed {n_chars} non-whitespace characters. Try again.",
+                invalid_reason=f"Your current focus is {self.get_current_stats().focus} which only allows you to type "
+                f"{self.get_current_stats().focus} characters. You typed {n_chars} non-whitespace characters. Try again.",
             )
         else:
             return ProposedHeroAction(
@@ -64,15 +89,12 @@ class Hero(Character):
                 time_to_answer_seconds=timer.interval,
             )
 
-    def get_how_much_chars_can_type(self) -> int:
-        return self.stats.focus
-
     def render(self):
         print(f"🦸 {self.name} lvl {self.level}")
-        print(f"HP: {self.stats.hp}")
-        print(f"Focus: {self.stats.focus}")
-        print(f"Attack: {self.stats.attack}")
-        print(f"Defense: {self.stats.defense}")
+        print(f"HP: {self.get_current_stats().max_hp}")
+        print(f"Focus: {self.get_current_stats().focus}")
+        print(f"Attack: {self.get_current_stats().attack}")
+        print(f"Defense: {self.get_current_stats().defense}")
         print(self.description)
         print(
             """

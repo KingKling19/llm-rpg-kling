@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 
-from llm_rpg.objects.item import CRYSTAL, SHIELD, SWORD
+from llm_rpg.objects.item import TurtleShell, PoetryBook, AdrenalinePump
 from llm_rpg.scenes.resting_hub.resting_hub_states.resting_hub_states import (
     RestingHubStates,
 )
@@ -27,7 +27,7 @@ class RestingHubGetItemState(State):
         self.items = self._initialize_items()
 
     def _initialize_items(self):
-        return [SWORD, SHIELD, CRYSTAL]
+        return [TurtleShell(), PoetryBook(), AdrenalinePump()]
 
     def handle_input(self):
         if not self.has_updated:
@@ -41,17 +41,17 @@ class RestingHubGetItemState(State):
             if self.last_user_navigation_input.is_valid:
                 chosen_item = self.items[self.last_user_navigation_input.choice - 1]
                 if self.last_user_navigation_input.choice == 1:
-                    self.resting_hub_scene.game.hero.items.append(chosen_item)
+                    self.resting_hub_scene.game.hero.inventory.add_item(chosen_item)
                     self.message_queue.append(
                         f"You have received a {chosen_item.name}."
                     )
                 elif self.last_user_navigation_input.choice == 2:
-                    self.resting_hub_scene.game.hero.items.append(chosen_item)
+                    self.resting_hub_scene.game.hero.inventory.add_item(chosen_item)
                     self.message_queue.append(
                         f"You have received a {chosen_item.name}."
                     )
                 elif self.last_user_navigation_input.choice == 3:
-                    self.resting_hub_scene.game.hero.items.append(chosen_item)
+                    self.resting_hub_scene.game.hero.inventory.add_item(chosen_item)
                     self.message_queue.append(
                         f"You have received a {chosen_item.name}."
                     )

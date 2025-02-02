@@ -1,5 +1,19 @@
+from dataclasses import dataclass
 from math import ceil, floor
 import random
+from typing import List, Tuple
+
+from llm_rpg.objects.item import (
+    BonusMultiplier,
+    Item,
+    LLMScalingBoost,
+)
+
+
+@dataclass
+class BonusMultiplierDamage:
+    bonus_multiplier: BonusMultiplier
+    damage_impact: int
 
 
 class DamageCalculationResult:
@@ -7,68 +21,122 @@ class DamageCalculationResult:
         self,
         random_factor: float,
         base_dmg: float,
+        applied_feasibility_boosts: List[LLMScalingBoost],
+        applied_potential_damage_boosts: List[LLMScalingBoost],
         feasibility: float,
         potential_damage: float,
         llm_dmg_impact: float,
         llm_dmg_scaling: float,
-        new_words_bonus: float,
-        overused_words_penalty: float,
-        creativity_bonus_scaling: float,
-        answer_speed_s: float,
-        answer_speed_bonus_scaling: float,
         llm_scaled_base_dmg: float,
-        creativity_bonus_dmg: float,
-        answer_speed_bonus_dmg: float,
-        total_dmg_unrounded: float,
-        total_dmg: float,
+        answer_speed_s: float,
+        n_new_words_in_action: int,
+        n_overused_words_in_action: int,
+        applied_bonus_multiplier_damages: List[BonusMultiplierDamage],
+        total_dmg: int,
     ):
         self.random_factor = random_factor
         self.base_dmg = base_dmg
+        self.applied_feasibility_boosts = applied_feasibility_boosts
+        self.applied_potential_damage_boosts = applied_potential_damage_boosts
         self.feasibility = feasibility
         self.potential_damage = potential_damage
         self.llm_dmg_impact = llm_dmg_impact
         self.llm_dmg_scaling = llm_dmg_scaling
-        self.new_words_bonus = new_words_bonus
-        self.overused_words_penalty = overused_words_penalty
-        self.creativity_bonus_scaling = creativity_bonus_scaling
-        self.answer_speed_s = answer_speed_s
-        self.answer_speed_bonus_scaling = answer_speed_bonus_scaling
         self.llm_scaled_base_dmg = llm_scaled_base_dmg
-        self.creativity_bonus_dmg = creativity_bonus_dmg
-        self.answer_speed_bonus_dmg = answer_speed_bonus_dmg
-        self.total_dmg_unrounded = total_dmg_unrounded
+        self.answer_speed_s = answer_speed_s
+        self.n_new_words_in_action = n_new_words_in_action
+        self.n_overused_words_in_action = n_overused_words_in_action
+        self.applied_bonus_multiplier_damages = applied_bonus_multiplier_damages
         self.total_dmg = total_dmg
 
-    def to_string_debug(self):
-        return (
-            f"💥 Damage dealt: {self.total_dmg}\n"
-            f"  - random_factor: {self.random_factor}\n"
-            f"  - base_dmg: {self.base_dmg}\n"
-            f"  - feasibility: {self.feasibility}\n"
-            f"  - potential_damage: {self.potential_damage}\n"
-            f"  - llm_dmg_impact: {self.llm_dmg_impact}\n"
-            f"  - llm_dmg_scaling: {self.llm_dmg_scaling}\n"
-            f"  - llm_scaled_base_dmg: {self.llm_scaled_base_dmg}\n"
-            f"  - new_words_bonus: {self.new_words_bonus}\n"
-            f"  - overused_words_penalty: {self.overused_words_penalty}\n"
-            f"  - creativity_bonus_scaling: {self.creativity_bonus_scaling}\n"
-            f"  - creativity_bonus_dmg: {self.creativity_bonus_dmg}\n"
-            f"  - answer_speed_s: {self.answer_speed_s}\n"
-            f"  - answer_speed_bonus_scaling: {self.answer_speed_bonus_scaling}\n"
-            f"  - answer_speed_bonus_dmg: {self.answer_speed_bonus_dmg}\n"
-            f"  - total_dmg_unrounded: {self.total_dmg_unrounded}\n"
-        )
+    def _applied_feasibility_boosts_string(self):
+        if not self.applied_feasibility_boosts:
+            return ""
 
-    def to_string(self):
+        items_string = "\n  - ".join(
+            [
+                f"{boost.item_name} {boost.boost_name}: feasibility {boost.base_scaling} -> {boost.boosted_scaling}"
+                for boost in self.applied_feasibility_boosts
+            ]
+        )
+        return f"Item feasibility boosts:\n  - {items_string}"
+
+    def _applied_potential_damage_boosts_string(self):
+        if not self.applied_potential_damage_boosts:
+            return ""
+
+        items_string = "\n  - ".join(
+            [
+                f"{boost.item_name} {boost.boost_name}: potential damage {boost.base_scaling} -> {boost.boosted_scaling}"
+                for boost in self.applied_potential_damage_boosts
+            ]
+        )
+        return f"Item potential damage boosts:\n  - {items_string}"
+
+    def _applied_bonus_multiplier_damages_string(self):
+        if not self.applied_bonus_multiplier_damages:
+            return ""
+
+        items_string = "\n  - ".join(
+            [
+                f"📦 {boost.bonus_multiplier.item_name} ({boost.bonus_multiplier.boost_name})\n"
+                f"    • Triggered by: {boost.bonus_multiplier.proc_reason.proc_condition.value} = {boost.bonus_multiplier.proc_reason.condition_value}\n"
+                f"    • Effect: x{boost.bonus_multiplier.multiplier} multiplier\n"
+                f"    • Damage: {'+' if boost.damage_impact >= 0 else '-'}{abs(boost.damage_impact)}"
+                for boost in self.applied_bonus_multiplier_damages
+            ]
+        )
+        return f"🎯 Item Effects:\n  - {items_string}"
+
+    def to_string_debug(self, is_hero_turn: bool):
+        base_string = f"Damage calculation debug"
+        base_string += f"\n  - base damage: {self.base_dmg}"
+        base_string += f"\n  - feasibility: {self.feasibility}"
+        base_string += f"\n  - potential damage: {self.potential_damage}"
+        base_string += f"\n  - llm dmg impact: {self.llm_dmg_impact}"
+        base_string += f"\n  - llm dmg scaling: {self.llm_dmg_scaling}"
+        base_string += f"\n  - llm scaled base dmg: {self.llm_scaled_base_dmg}"
+        if is_hero_turn:
+            base_string += f"\n  - answer speed s: {self.answer_speed_s}"
+            base_string += f"\n  - n new words in action: {self.n_new_words_in_action}"
+            base_string += (
+                f"\n  - n overused words in action: {self.n_overused_words_in_action}"
+            )
+        if is_hero_turn:
+            if self._applied_feasibility_boosts_string():
+                base_string += f"\n\n{self._applied_feasibility_boosts_string()}"
+            else:
+                base_string += "\n\nNo feasibility boosts applied"
+            if self._applied_potential_damage_boosts_string():
+                base_string += f"\n\n{self._applied_potential_damage_boosts_string()}"
+            else:
+                base_string += "\n\nNo potential damage boosts applied"
+            if self._applied_bonus_multiplier_damages_string():
+                base_string += f"\n\n{self._applied_bonus_multiplier_damages_string()}"
+            else:
+                base_string += "\n\nNo bonus multipliers applied"
+
+        base_string += f"\n\n💥 Total damage: {self.total_dmg}"
+        return base_string
+
+    def to_string(self, is_hero_turn: bool):
         base_string = f"💥 Total damage: {self.total_dmg}"
-        if self.total_dmg != round(self.llm_scaled_base_dmg):
-            base_string += f"\n  - base damage: {round(self.llm_scaled_base_dmg)}"
-        if self.answer_speed_bonus_dmg > 0:
-            base_string += f"\n  - answer speed bonus: + {self.answer_speed_bonus_dmg}"
-        if self.creativity_bonus_dmg > 0:
-            base_string += f"\n  - creativity bonus: + {self.creativity_bonus_dmg}"
-        if self.creativity_bonus_dmg < 0:
-            base_string += f"\n  - repetition penalty: {self.creativity_bonus_dmg}"
+        base_string += f"\n  - feasibility: {self.feasibility}"
+        base_string += f"\n  - potential damage: {self.potential_damage}"
+        if is_hero_turn:
+            if self._applied_feasibility_boosts_string():
+                base_string += f"\n  - {self._applied_feasibility_boosts_string()}"
+            if self._applied_potential_damage_boosts_string():
+                base_string += f"\n  - {self._applied_potential_damage_boosts_string()}"
+            base_string += f"\n  - answer speed s: {self.answer_speed_s}"
+            base_string += f"\n  - n new words in action: {self.n_new_words_in_action}"
+            base_string += (
+                f"\n  - n overused words in action: {self.n_overused_words_in_action}"
+            )
+            if self._applied_bonus_multiplier_damages_string():
+                base_string += (
+                    f"\n  - {self._applied_bonus_multiplier_damages_string()}"
+                )
 
         return base_string
 
@@ -106,6 +174,73 @@ class DamageCalculator:
         self.max_new_words_bonus = max_new_words_bonus
         self.max_overused_words_penalty = max_overused_words_penalty
 
+    def _boost_feasibility(
+        self, base_feasibility: float, items: List[Item]
+    ) -> Tuple[float, List[LLMScalingBoost]]:
+        applied_feasibility_boosts: List[LLMScalingBoost] = []
+        boosted_feasibility = base_feasibility
+        for item in items:
+            feasibility_boost = item.boost_feasibility(boosted_feasibility)
+            if feasibility_boost.is_applied:
+                applied_feasibility_boosts.append(feasibility_boost)
+                boosted_feasibility = feasibility_boost.boosted_scaling
+        return boosted_feasibility, applied_feasibility_boosts
+
+    def _boost_potential_damage(
+        self, base_potential_damage: float, items: List[Item]
+    ) -> Tuple[float, List[LLMScalingBoost]]:
+        applied_potential_damage_boosts: List[LLMScalingBoost] = []
+        boosted_potential_damage = base_potential_damage
+        for item in items:
+            potential_damage_boost = item.boost_potential_damage(
+                boosted_potential_damage
+            )
+            if potential_damage_boost.is_applied:
+                applied_potential_damage_boosts.append(potential_damage_boost)
+                boosted_potential_damage = potential_damage_boost.boosted_scaling
+        return boosted_potential_damage, applied_potential_damage_boosts
+
+    def _proc_bonus_multipliers(
+        self,
+        n_new_words_in_action: int,
+        n_overused_words_in_action: int,
+        answer_speed_s: float,
+        items: List[Item],
+    ) -> List[BonusMultiplier]:
+        applied_bonus_multipliers: List[BonusMultiplier] = []
+        for item in items:
+            bonus_multipliers = item.get_bonus_multipliers(
+                n_new_words_in_action=n_new_words_in_action,
+                n_overused_words_in_action=n_overused_words_in_action,
+                answer_speed_s=answer_speed_s,
+            )
+            for bonus_multiplier in bonus_multipliers:
+                if bonus_multiplier.is_procced:
+                    applied_bonus_multipliers.append(bonus_multiplier)
+        return applied_bonus_multipliers
+
+    def _apply_procced_bonus_multipliers(
+        self,
+        llm_scaled_base_dmg: float,
+        applied_bonus_multipliers: List[BonusMultiplier],
+    ) -> Tuple[int, List[BonusMultiplierDamage]]:
+        applied_bonus_multiplier_damages: List[BonusMultiplierDamage] = []
+        total_bonus_damage = 0
+        for bonus_multiplier in applied_bonus_multipliers:
+            raw_bonus_damage = llm_scaled_base_dmg * bonus_multiplier.multiplier
+            if raw_bonus_damage < 0:
+                scaled_bonus_damage = floor(raw_bonus_damage)
+            else:
+                scaled_bonus_damage = ceil(raw_bonus_damage)
+            applied_bonus_multiplier_damages.append(
+                BonusMultiplierDamage(
+                    bonus_multiplier=bonus_multiplier,
+                    damage_impact=scaled_bonus_damage,
+                )
+            )
+            total_bonus_damage += scaled_bonus_damage
+        return total_bonus_damage, applied_bonus_multiplier_damages
+
     def calculate_damage(
         self,
         attack: float,
@@ -115,6 +250,7 @@ class DamageCalculator:
         n_new_words_in_action: int,
         n_overused_words_in_action: int,
         answer_speed_s: float,
+        equiped_items: List[Item],
     ) -> DamageCalculationResult:
         # base dmg depends purely on stats and random factor
         random_factor = random.uniform(self.random_factor_min, self.random_factor_max)
@@ -124,57 +260,55 @@ class DamageCalculator:
             * random_factor,
         )
 
+        # boost feasibility
+        boosted_feasibility, applied_feasibility_boosts = self._boost_feasibility(
+            feasibility, equiped_items
+        )
+
+        # boost potential damage
+        boosted_potential_damage, applied_potential_damage_boosts = (
+            self._boost_potential_damage(potential_damage, equiped_items)
+        )
+
         # llm dmg depends on feasibility and potential damage
-        llm_dmg_scaling = self.llm_dmg_impact * feasibility * potential_damage
-        llm_scaled_base_dmg = base_dmg * llm_dmg_scaling
-
-        # creativity bonus depends on new words bonus and overused words penalty
-        new_words_bonus = (
-            self.new_words_bonus_increment_per_word * n_new_words_in_action
+        llm_dmg_scaling = (
+            self.llm_dmg_impact * boosted_feasibility * boosted_potential_damage
         )
-        overused_words_penalty = (
-            self.overused_words_penalty_increment_per_word * n_overused_words_in_action
+        llm_scaled_base_dmg = ceil(base_dmg * llm_dmg_scaling)
+
+        # proc items that have bonus multipliers
+        procced_bonus_multipliers = self._proc_bonus_multipliers(
+            n_new_words_in_action,
+            n_overused_words_in_action,
+            answer_speed_s,
+            equiped_items,
         )
 
-        creativity_bonus_scaling = new_words_bonus - overused_words_penalty
-        if creativity_bonus_scaling < 0:
-            # penalty gets floored
-            creativity_bonus_dmg = floor(llm_scaled_base_dmg * creativity_bonus_scaling)
-        else:
-            # bonus gets ceiled
-            creativity_bonus_dmg = ceil(llm_scaled_base_dmg * creativity_bonus_scaling)
-
-        # answer speed bonus depends on answer speed
-        answer_speed_bonus_scaling = max(
-            0,
-            self.max_answer_speed_bonus
-            - (self.answer_speed_bonus_reduction_per_s * answer_speed_s),
+        # apply bonus multipliers
+        total_bonus_damage, applied_bonus_multiplier_damages = (
+            self._apply_procced_bonus_multipliers(
+                llm_scaled_base_dmg, procced_bonus_multipliers
+            )
         )
-        answer_speed_bonus_dmg = ceil(llm_scaled_base_dmg * answer_speed_bonus_scaling)
 
-        # total dmg is sum of llm_scaled_base_dmg and all bonuses
-        total_dmg_unrounded = (
-            llm_scaled_base_dmg + creativity_bonus_dmg + answer_speed_bonus_dmg
-        )
-        total_dmg = round(total_dmg_unrounded)
+        # calculate total damage
+        total_dmg = llm_scaled_base_dmg + total_bonus_damage
         if total_dmg < 0:
             total_dmg = 0
 
         return DamageCalculationResult(
             random_factor=random_factor,
             base_dmg=base_dmg,
-            feasibility=feasibility,
-            potential_damage=potential_damage,
+            applied_feasibility_boosts=applied_feasibility_boosts,
+            applied_potential_damage_boosts=applied_potential_damage_boosts,
+            feasibility=boosted_feasibility,
+            potential_damage=boosted_potential_damage,
             llm_dmg_impact=self.llm_dmg_impact,
             llm_dmg_scaling=llm_dmg_scaling,
-            new_words_bonus=new_words_bonus,
-            overused_words_penalty=overused_words_penalty,
-            creativity_bonus_scaling=creativity_bonus_scaling,
-            answer_speed_s=answer_speed_s,
-            answer_speed_bonus_scaling=answer_speed_bonus_scaling,
             llm_scaled_base_dmg=llm_scaled_base_dmg,
-            creativity_bonus_dmg=creativity_bonus_dmg,
-            answer_speed_bonus_dmg=answer_speed_bonus_dmg,
-            total_dmg_unrounded=total_dmg_unrounded,
+            answer_speed_s=answer_speed_s,
+            n_new_words_in_action=n_new_words_in_action,
+            n_overused_words_in_action=n_overused_words_in_action,
+            applied_bonus_multiplier_damages=applied_bonus_multiplier_damages,
             total_dmg=total_dmg,
         )

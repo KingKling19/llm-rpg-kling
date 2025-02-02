@@ -6,9 +6,16 @@ from llm_rpg.systems.battle.battle_log import BattleLog
 
 
 class Enemy(Character):
-    def __init__(self, name: str, description: str, level: int, stats: Stats, llm: LLM):
-        super().__init__(name=name, description=description, level=level, stats=stats)
+    def __init__(
+        self, name: str, description: str, level: int, base_stats: Stats, llm: LLM
+    ):
+        super().__init__(
+            name=name, description=description, level=level, base_stats=base_stats
+        )
         self.llm = llm
+
+    def get_current_stats(self) -> Stats:
+        return self.base_stats
 
     def get_next_action(self, battle_log: BattleLog, hero: Hero):
         battle_log_text = battle_log.to_string_for_battle_ai()
@@ -31,8 +38,8 @@ class Enemy(Character):
             Current battle history:
             {battle_log_text}
 
-            HP of you, {self.name}: {self.stats.hp}
-            HP of {hero.name}: {hero.stats.hp}
+            HP of you, {self.name}: {self.get_current_stats().max_hp}
+            HP of {hero.name}: {hero.get_current_stats().max_hp}
             
             Describe your next action very briefly in third person like a narrator would.
             """
@@ -43,9 +50,9 @@ class Enemy(Character):
     def render(self):
         print(f"👾 {self.name} lvl {self.level}")
         print(self.description)
-        print(f"HP: {self.stats.hp}")
-        print(f"Attack: {self.stats.attack}")
-        print(f"Defense: {self.stats.defense}")
+        print(f"HP: {self.get_current_stats().max_hp}")
+        print(f"Attack: {self.get_current_stats().attack}")
+        print(f"Defense: {self.get_current_stats().defense}")
         print(
             """
                       ___====-_  _-====___

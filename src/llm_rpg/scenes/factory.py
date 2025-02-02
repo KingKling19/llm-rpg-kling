@@ -17,7 +17,7 @@ class SceneFactory:
         self.game = game
 
     def _get_enemy(self) -> Enemy:
-        generated_stats = Stats(attack=10, defense=10, focus=20, hp=10)
+        generated_stats = Stats(attack=10, defense=10, focus=20, max_hp=10)
         enemy_gain_levels = self.game.battles_won
         for _ in range(enemy_gain_levels):
             stat_index = random.randint(0, 2)
@@ -33,7 +33,7 @@ class SceneFactory:
             name="Zephyros",
             description="A cunning and ancient dragon with scales that shimmer like the night sky",
             level=enemy_gain_levels + 1,
-            stats=generated_stats,
+            base_stats=generated_stats,
             llm=self.game.llm,
         )
 
