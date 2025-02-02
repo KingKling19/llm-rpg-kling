@@ -16,7 +16,7 @@ class SceneTypes(Enum):
 
 
 class Scene(ABC):
-    def __init__(self, game: Game, current_state: State):
+    def __init__(self, game: Game, current_state: State = None):
         self.game = game
         self.current_state = current_state
 

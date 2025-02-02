@@ -255,3 +255,14 @@ class AdrenalinePump(Item):
                 )
             )
         return bonus_multipliers
+
+
+# Instantiate items
+ALL_ITEMS: List[Item] = [
+    BaseballBat(),
+    TurtleShell(),
+    AdderallBox(),
+    HeartTransplant(),
+    PoetryBook(),
+    AdrenalinePump(),
+]

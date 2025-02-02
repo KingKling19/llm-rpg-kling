@@ -51,8 +51,8 @@ class Hero(Character):
             name=name, description=description, level=level, base_stats=base_stats
         )
         self.inventory = Inventory(max_items=max_items)
-        self.should_level_up = True
-        self.discovered_item = False
+        self.should_level_up = False
+        self.discovered_item = True
 
     def level_up(self, stat_type: StatTypes, amount: int):
         if stat_type == StatTypes.ATTACK:

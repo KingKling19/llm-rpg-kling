@@ -26,12 +26,16 @@ if TYPE_CHECKING:
 
 class RestingHubScene(Scene):
     def __init__(self, game: Game):
-        super().__init__(game=game, current_state=self.get_initial_state(game))
+        super().__init__(game=game)
+        # we need to first set the game and then initialze the state
+        # else I was getting errors because game was not initialized properly so I could not
+        # access the hero through the self.game
+        self.current_state = self.get_initial_state()
 
-    def get_initial_state(self, game: Game) -> State:
-        if game.hero.should_level_up:
+    def get_initial_state(self) -> State:
+        if self.game.hero.should_level_up:
             return RestingHubLevelUpState(self)
-        elif game.hero.discovered_item:
+        elif self.game.hero.discovered_item:
             return RestingHubGetItemState(self)
         else:
             return RestingHubNavigationState(self)

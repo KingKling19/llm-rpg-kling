@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 
+import random
 from typing import TYPE_CHECKING, List, Optional
 
 
-from llm_rpg.objects.item import Item, TurtleShell, PoetryBook, AdrenalinePump
+from llm_rpg.objects.item import (
+    ALL_ITEMS,
+    Item,
+)
 from llm_rpg.scenes.resting_hub.resting_hub_states.resting_hub_states import (
     RestingHubStates,
 )
@@ -24,15 +28,27 @@ class RestingHubGetItemState(State):
         self.resting_hub_scene = resting_hub_scene
         self.message_queue = []
         self.last_user_navigation_input = UserNavigationInput(-1, True)
-        self.items: List[Item] = self._initialize_items()
         self.selected_item: Optional[Item] = None
         self.is_replacing_item = False
         self.display_discovered_items = True
         self.display_current_items_to_drop = False
         self.display_state_transition_header = True
+        self.n_items_to_drop = 3
+        self.items: List[Item] = self._initialize_items()
 
     def _initialize_items(self):
-        return [TurtleShell(), PoetryBook(), AdrenalinePump()]
+        all_possible_items = ALL_ITEMS
+        items_to_choose_from = []
+        for item in all_possible_items:
+            is_not_equiped = True
+            for equipped_item in self.resting_hub_scene.game.hero.inventory.items:
+                if equipped_item.name == item.name:
+                    is_not_equiped = False
+                    break
+            if is_not_equiped:
+                items_to_choose_from.append(item)
+        n_items_to_drop = min(self.n_items_to_drop, len(items_to_choose_from))
+        return random.sample(items_to_choose_from, n_items_to_drop)
 
     def handle_input(self):
         if self.is_replacing_item:
