@@ -1,3 +1,4 @@
+from enum import Enum
 from textwrap import dedent
 from llm_rpg.llm.llm import LLM
 from llm_rpg.objects.character import Character, Stats
@@ -5,14 +6,27 @@ from llm_rpg.systems.hero.hero import Hero
 from llm_rpg.systems.battle.battle_log import BattleLog
 
 
+class EnemyArchetypes(Enum):
+    DEFENDER = "defender"
+    ATTACKER = "attacker"
+    TANK = "tank"
+
+
 class Enemy(Character):
     def __init__(
-        self, name: str, description: str, level: int, base_stats: Stats, llm: LLM
+        self,
+        name: str,
+        description: str,
+        level: int,
+        base_stats: Stats,
+        llm: LLM,
+        archetype: EnemyArchetypes,
     ):
         super().__init__(
             name=name, description=description, level=level, base_stats=base_stats
         )
         self.llm = llm
+        self.archetype = archetype
 
     def get_current_stats(self) -> Stats:
         return self.base_stats

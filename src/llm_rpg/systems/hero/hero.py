@@ -51,19 +51,7 @@ class Hero(Character):
             name=name, description=description, level=level, base_stats=base_stats
         )
         self.inventory = Inventory(max_items=max_items)
-        self.should_level_up = False
-        self.discovered_item = True
-
-    def level_up(self, stat_type: StatTypes, amount: int):
-        if stat_type == StatTypes.ATTACK:
-            self.base_stats.attack += amount
-        elif stat_type == StatTypes.DEFENSE:
-            self.base_stats.defense += amount
-        elif stat_type == StatTypes.FOCUS:
-            self.base_stats.focus += amount
-        elif stat_type == StatTypes.MAX_HP:
-            self.base_stats.max_hp += amount
-        self.should_level_up = False
+        self.discovered_item = False
 
     def dont_pick_up_item(self):
         self.discovered_item = False

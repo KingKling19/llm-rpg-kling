@@ -29,6 +29,8 @@ class Character:
         self.base_stats = base_stats
         # current hp of the character
         self.hp = base_stats.max_hp
+        # flag to check if the character should level up (only used by the hero though)
+        self.should_level_up = False
 
     def inflict_damage(self, damage: int):
         self.hp -= damage
@@ -40,3 +42,17 @@ class Character:
 
     def full_heal(self):
         self.hp = self.base_stats.max_hp
+
+    def level_up(self, stat_type: StatTypes, amount: int):
+        if stat_type == StatTypes.ATTACK:
+            self.base_stats.attack += amount
+        elif stat_type == StatTypes.DEFENSE:
+            self.base_stats.defense += amount
+        elif stat_type == StatTypes.FOCUS:
+            self.base_stats.focus += amount
+        elif stat_type == StatTypes.MAX_HP:
+            self.base_stats.max_hp += amount
+            self.hp = self.base_stats.max_hp
+
+        self.level += 1
+        self.should_level_up = False

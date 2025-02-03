@@ -2,11 +2,12 @@ from __future__ import annotations
 import random
 from typing import TYPE_CHECKING
 
-from llm_rpg.objects.character import Stats
+from llm_rpg.objects.character import StatTypes, Stats
 from llm_rpg.scenes.battle.battle_scene import BattleScene
 from llm_rpg.scenes.resting_hub.resting_hub_scene import RestingHubScene
 from llm_rpg.systems.battle.battle_ai import BattleAI
-from llm_rpg.systems.battle.enemy import Enemy
+from llm_rpg.systems.battle.difficulty_scaling import scale_enemy
+from llm_rpg.systems.battle.enemy import Enemy, EnemyArchetypes
 
 if TYPE_CHECKING:
     from llm_rpg.game.game import Game
@@ -17,25 +18,18 @@ class SceneFactory:
         self.game = game
 
     def _get_enemy(self) -> Enemy:
-        generated_stats = Stats(attack=10, defense=10, focus=20, max_hp=10)
-        enemy_gain_levels = self.game.battles_won
-        for _ in range(enemy_gain_levels):
-            stat_index = random.randint(0, 2)
-            if stat_index == 0:
-                generated_stats.attack += 5
-            elif stat_index == 1:
-                generated_stats.defense += 5
-            elif stat_index == 2:
-                generated_stats.hp += 5
-                generated_stats.max_hp += 5
-
-        return Enemy(
+        enemy = Enemy(
             name="Zephyros",
             description="A cunning and ancient dragon with scales that shimmer like the night sky",
-            level=enemy_gain_levels + 1,
-            base_stats=generated_stats,
+            level=1,
+            base_stats=Stats(attack=10, defense=10, focus=20, max_hp=10),
             llm=self.game.llm,
+            archetype=EnemyArchetypes.ATTACKER,
         )
+
+        scale_enemy(enemy=enemy, battles_won=20)
+
+        return enemy
 
     def get_battle_scene(self) -> BattleScene:
         enemy = self._get_enemy()

@@ -30,6 +30,7 @@ class BattleEndState(State):
             self.battle_scene.hero.full_heal()
             self.battle_scene.game.change_scene(SceneTypes.RESTING_HUB)
         else:
+            # TODO: Implement this
             self.battle_scene.game.change_scene(SceneTypes.GAME_OVER)
 
     def _render_character_stats(self):
