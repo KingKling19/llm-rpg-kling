@@ -1,13 +1,27 @@
+from __future__ import annotations
 from dataclasses import dataclass
 from math import ceil, floor
 import random
-from typing import List, Tuple
+from typing import List, Tuple, TYPE_CHECKING
+
 
 from llm_rpg.objects.item import (
     BonusMultiplier,
     Item,
     LLMScalingBoost,
 )
+
+if TYPE_CHECKING:
+    from llm_rpg.game.game_config import GameConfig
+
+
+@dataclass
+class DamageCalculationConfig:
+    attack_scaling: float
+    defense_scaling: float
+    random_factor_max: float
+    random_factor_min: float
+    llm_dmg_impact: int
 
 
 @dataclass
@@ -144,35 +158,13 @@ class DamageCalculationResult:
 class DamageCalculator:
     def __init__(
         self,
-        # base dmg scaling
-        attack_scaling: float = 0.5,
-        defense_scaling: float = 0.25,
-        random_factor_max: float = 1.05,
-        random_factor_min: float = 0.95,
-        # how much llm can affect base dmg
-        llm_dmg_impact: int = 2,
-        # bonus scaling increments / reductions
-        answer_speed_bonus_reduction_per_s: float = 0.04,
-        new_words_bonus_increment_per_word: float = 0.05,
-        overused_words_penalty_increment_per_word: float = 0.02,
-        # max bonus scaling
-        max_answer_speed_bonus: float = 0.2,
-        max_new_words_bonus: float = 1,
-        max_overused_words_penalty: float = 0.2,
+        game_config: GameConfig,
     ):
-        self.attack_scaling = attack_scaling
-        self.defense_scaling = defense_scaling
-        self.random_factor_max = random_factor_max
-        self.random_factor_min = random_factor_min
-        self.llm_dmg_impact = llm_dmg_impact
-        self.answer_speed_bonus_reduction_per_s = answer_speed_bonus_reduction_per_s
-        self.new_words_bonus_increment_per_word = new_words_bonus_increment_per_word
-        self.overused_words_penalty_increment_per_word = (
-            overused_words_penalty_increment_per_word
-        )
-        self.max_answer_speed_bonus = max_answer_speed_bonus
-        self.max_new_words_bonus = max_new_words_bonus
-        self.max_overused_words_penalty = max_overused_words_penalty
+        self.attack_scaling = game_config.damage_calculation.attack_scaling
+        self.defense_scaling = game_config.damage_calculation.defense_scaling
+        self.random_factor_max = game_config.damage_calculation.random_factor_max
+        self.random_factor_min = game_config.damage_calculation.random_factor_min
+        self.llm_dmg_impact = game_config.damage_calculation.llm_dmg_impact
 
     def _boost_feasibility(
         self, base_feasibility: float, items: List[Item]

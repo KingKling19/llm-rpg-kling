@@ -36,8 +36,10 @@ class BattleScene(Scene):
         self.enemy = enemy
         self.battle_ai = battle_ai
         self.battle_log = BattleLog()
-        self.creativity_tracker = CreativityTracker()
-        self.damage_calculator = DamageCalculator()
+        self.creativity_tracker = CreativityTracker(
+            word_overuse_threshold=game.config.creativity_word_overuse_threshold
+        )
+        self.damage_calculator = DamageCalculator(game_config=game.config)
 
     def change_state(self, new_state: BattleStates):
         if new_state == BattleStates.START:

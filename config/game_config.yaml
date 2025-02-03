@@ -1,0 +1,41 @@
+debug_mode: true
+llm_model: "llama-3.3-70b-versatile"
+hero:
+  base_hero_stats:
+    attack: 5
+    defense: 5
+    focus: 10
+    max_hp: 5
+  stats_level_up_amount: 5
+enemy:
+  enemy_level_scaling:
+    exp_growth_rate: 1.2
+    linear_growth_rate: 0.6
+    linear_scaling_factor: 0.8
+  leveling_stats_probs:
+    attacker:
+      attack: 0.7
+      defense: 0.2
+      max_hp: 0.1
+    defender:
+      attack: 0.1
+      defense: 0.7
+      max_hp: 0.2
+    tank:
+      attack: 0.1
+      defense: 0.2
+      max_hp: 0.7
+  stats_level_up_amount: 5
+  base_stats:
+    attack: 5
+    defense: 5
+    focus: 10
+    max_hp: 5
+damage_calculator:
+  attack_scaling: 0.5
+  defense_scaling: 0.25
+  random_factor_max: 1.05
+  random_factor_min: 0.95
+  llm_dmg_impact: 2
+creativity_tracker:
+  word_overuse_threshold: 2

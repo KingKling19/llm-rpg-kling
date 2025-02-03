@@ -6,7 +6,7 @@ from llm_rpg.objects.character import StatTypes, Stats
 from llm_rpg.scenes.battle.battle_scene import BattleScene
 from llm_rpg.scenes.resting_hub.resting_hub_scene import RestingHubScene
 from llm_rpg.systems.battle.battle_ai import BattleAI
-from llm_rpg.systems.battle.difficulty_scaling import scale_enemy
+from llm_rpg.systems.battle.enemy_scaling import scale_enemy
 from llm_rpg.systems.battle.enemy import Enemy, EnemyArchetypes
 
 if TYPE_CHECKING:
@@ -22,12 +22,14 @@ class SceneFactory:
             name="Zephyros",
             description="A cunning and ancient dragon with scales that shimmer like the night sky",
             level=1,
-            base_stats=Stats(attack=10, defense=10, focus=20, max_hp=10),
+            base_stats=self.game.config.base_enemy_stats,
             llm=self.game.llm,
             archetype=EnemyArchetypes.ATTACKER,
         )
 
-        scale_enemy(enemy=enemy, battles_won=20)
+        scale_enemy(
+            enemy=enemy, battles_won=self.game.battles_won, game_config=self.game.config
+        )
 
         return enemy
 

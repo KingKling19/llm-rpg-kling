@@ -26,7 +26,7 @@ class BattleLog:
             )
         return battle_log_text
 
-    def get_string_of_last_2_events(self):
+    def get_string_of_last_2_events(self, debug_mode: bool):
         if len(self.events) == 0:
             return ""
         string_repr = ""
@@ -36,15 +36,26 @@ class BattleLog:
                 string_repr += "🦸 Your turn:\n"
             else:
                 string_repr += "👾 Enemy turn:\n"
-            string_repr += (
-                f"{event.character_name} tried to {event.proposed_action}\n\n"
-                f"LLM estimates:\n"
-                f"- feasibility: {event.damage_calculation_result.feasibility}\n"
-                f"- potential damage: {event.damage_calculation_result.potential_damage}\n\n"
-                f"Effect:\n"
-                f"{event.effect_description}\n\n"
-                f"{event.damage_calculation_result.to_string_debug(is_hero_turn=event.is_hero_turn)}\n"
-            )
+            if debug_mode:
+                string_repr += (
+                    f"{event.character_name} tried to {event.proposed_action}\n\n"
+                    f"LLM estimates:\n"
+                    f"- feasibility: {event.damage_calculation_result.feasibility}\n"
+                    f"- potential damage: {event.damage_calculation_result.potential_damage}\n\n"
+                    f"Effect:\n"
+                    f"{event.effect_description}\n\n"
+                    f"{event.damage_calculation_result.to_string_debug(is_hero_turn=event.is_hero_turn)}\n"
+                )
+            else:
+                string_repr += (
+                    f"{event.character_name} tried to {event.proposed_action}\n\n"
+                    f"LLM estimates:\n"
+                    f"- feasibility: {event.damage_calculation_result.feasibility}\n"
+                    f"- potential damage: {event.damage_calculation_result.potential_damage}\n\n"
+                    f"Effect:\n"
+                    f"{event.effect_description}\n\n"
+                    f"{event.damage_calculation_result.to_string(is_hero_turn=event.is_hero_turn)}\n"
+                )
             if i < len(last_2_events) - 1:
                 string_repr += "\n"
         return string_repr

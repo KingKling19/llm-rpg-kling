@@ -141,7 +141,9 @@ class BattleTurnState(State):
             print("")
             print("--- The following events took place... --- \n")
             string_of_last_2_events = (
-                self.battle_scene.battle_log.get_string_of_last_2_events()
+                self.battle_scene.battle_log.get_string_of_last_2_events(
+                    debug_mode=self.battle_scene.game.config.debug_mode
+                )
             )
             print(string_of_last_2_events)
 
