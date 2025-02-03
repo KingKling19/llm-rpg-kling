@@ -1,8 +1,6 @@
 from __future__ import annotations
-import random
 from typing import TYPE_CHECKING
 
-from llm_rpg.objects.character import StatTypes, Stats
 from llm_rpg.scenes.battle.battle_scene import BattleScene
 from llm_rpg.scenes.resting_hub.resting_hub_scene import RestingHubScene
 from llm_rpg.systems.battle.battle_ai import BattleAI

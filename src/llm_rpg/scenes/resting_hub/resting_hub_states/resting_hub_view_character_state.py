@@ -45,7 +45,7 @@ class RestingHubViewCharacterState(State):
         )
         print(f"Focus: {self.resting_hub_scene.game.hero.get_current_stats().focus}")
         print(f"HP: {self.resting_hub_scene.game.hero.get_current_stats().max_hp}")
-        print(f"Equiped items:")
+        print("Equiped items:")
         if self.resting_hub_scene.game.hero.inventory.items:
             for item in self.resting_hub_scene.game.hero.inventory.items:
                 print(f"  - {item.name} ({item.rarity.value}): {item.description}")

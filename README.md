@@ -37,3 +37,18 @@ To start the game, run the following command:
 ```bash
 poetry run python -m llm_rpg
 ```
+
+
+## Maintaining the codebase
+
+Install pre-commit hooks:
+
+```bash
+pre-commit install
+```
+
+Run tests:
+
+```bash
+poetry run pytest -s -v
+```

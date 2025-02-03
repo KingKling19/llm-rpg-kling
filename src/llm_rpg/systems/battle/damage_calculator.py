@@ -103,7 +103,7 @@ class DamageCalculationResult:
         return f"🎯 Item Effects:\n  - {items_string}"
 
     def to_string_debug(self, is_hero_turn: bool):
-        base_string = f"Damage calculation debug"
+        base_string = "Damage calculation debug"
         base_string += f"\n  - base damage: {self.base_dmg}"
         base_string += f"\n  - feasibility: {self.feasibility}"
         base_string += f"\n  - potential damage: {self.potential_damage}"

@@ -5,7 +5,6 @@ from pydantic import BaseModel, Field
 from llm_rpg.llm.llm import LLM
 
 from typing import Annotated
-from pydantic import BaseModel, Field
 
 from llm_rpg.objects.character import Character
 

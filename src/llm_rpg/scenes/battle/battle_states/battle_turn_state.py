@@ -1,10 +1,8 @@
 from __future__ import annotations
-
 from llm_rpg.scenes.battle.battle_states.battle_states import BattleStates
 from llm_rpg.systems.battle.damage_calculator import DamageCalculationResult
 from llm_rpg.systems.hero.hero import ProposedHeroAction
 from llm_rpg.systems.battle.battle_log import BattleEvent
-from llm_rpg.scenes.battle.battle_states.battle_end_state import BattleEndState
 
 from typing import TYPE_CHECKING
 

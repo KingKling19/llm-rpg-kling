@@ -1,5 +1,5 @@
 from typing import List
-from llm_rpg.objects.character import Character, StatTypes, Stats
+from llm_rpg.objects.character import Character, Stats
 from llm_rpg.objects.item import (
     Item,
 )
