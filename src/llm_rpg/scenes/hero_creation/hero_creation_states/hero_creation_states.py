@@ -2,6 +2,5 @@ from enum import Enum
 
 
 class HeroCreationStates(Enum):
-    START = "start"
-    TURN = "turn"
-    END = "end"
+    CHOOSE_NAME = "choose_name"
+    CHOOSE_CLASS = "choose_class"

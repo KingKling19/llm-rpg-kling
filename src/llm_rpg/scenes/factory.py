@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from llm_rpg.scenes.battle.battle_scene import BattleScene
+from llm_rpg.scenes.hero_creation.hero_creation_scene import HeroCreationScene
 from llm_rpg.scenes.resting_hub.resting_hub_scene import RestingHubScene
 from llm_rpg.systems.battle.battle_ai import BattleAI
 from llm_rpg.systems.battle.enemy_scaling import scale_enemy
@@ -41,3 +42,6 @@ class SceneFactory:
 
     def get_resting_hub_scene(self) -> RestingHubScene:
         return RestingHubScene(game=self.game)
+
+    def get_hero_creation_scene(self) -> HeroCreationScene:
+        return HeroCreationScene(game=self.game)

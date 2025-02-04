@@ -1,12 +1,18 @@
 import yaml
 
 from llm_rpg.objects.character import Stats
+from llm_rpg.objects.item import (
+    AttackerStartingItem,
+    DefenderStartingItem,
+    FocusStartingItem,
+)
 from llm_rpg.systems.battle.damage_calculator import DamageCalculationConfig
 from llm_rpg.systems.battle.enemy_scaling import (
     EnemyArchetypesLevelingAttributeProbs,
     LevelScaling,
     LevelingAttributeProbs,
 )
+from llm_rpg.systems.hero.hero import HeroClass
 
 
 class GameConfig:
@@ -29,6 +35,33 @@ class GameConfig:
             defense=self.game_config["hero"]["base_hero_stats"]["defense"],
             focus=self.game_config["hero"]["base_hero_stats"]["focus"],
             max_hp=self.game_config["hero"]["base_hero_stats"]["max_hp"],
+        )
+
+    @property
+    def attack_hero_class(self) -> HeroClass:
+        return HeroClass(
+            class_name=self.game_config["hero"]["classes"]["attack"]["class_name"],
+            description=self.game_config["hero"]["classes"]["attack"]["description"],
+            base_stats=self.game_config["hero"]["classes"]["attack"]["base_stats"],
+            starting_item=AttackerStartingItem(),
+        )
+
+    @property
+    def focus_hero_class(self) -> HeroClass:
+        return HeroClass(
+            class_name=self.game_config["hero"]["classes"]["focus"]["class_name"],
+            description=self.game_config["hero"]["classes"]["focus"]["description"],
+            base_stats=self.game_config["hero"]["classes"]["focus"]["base_stats"],
+            starting_item=FocusStartingItem(),
+        )
+
+    @property
+    def defense_hero_class(self) -> HeroClass:
+        return HeroClass(
+            class_name=self.game_config["hero"]["classes"]["defense"]["class_name"],
+            description=self.game_config["hero"]["classes"]["defense"]["description"],
+            base_stats=self.game_config["hero"]["classes"]["defense"]["base_stats"],
+            starting_item=DefenderStartingItem(),
         )
 
     @property

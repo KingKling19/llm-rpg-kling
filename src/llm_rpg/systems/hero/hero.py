@@ -1,41 +1,26 @@
-from typing import List
+from dataclasses import dataclass
 from llm_rpg.objects.character import Character, Stats
 from llm_rpg.objects.item import (
     Item,
 )
+from llm_rpg.systems.hero.inventory import Inventory
 from llm_rpg.utils.timer import Timer
 
 
+@dataclass
 class ProposedHeroAction:
-    def __init__(
-        self,
-        action: str,
-        time_to_answer_seconds: float,
-        is_valid: bool,
-        invalid_reason: str = None,
-    ):
-        self.action = action
-        self.time_to_answer_seconds = time_to_answer_seconds
-        self.is_valid = is_valid
-        self.invalid_reason = invalid_reason
+    action: str
+    time_to_answer_seconds: float
+    is_valid: bool
+    invalid_reason: str = None
 
 
-class Inventory:
-    def __init__(self, max_items: int):
-        self.items: List[Item] = []
-        self.max_items = max_items
-
-    def add_item(self, item: Item):
-        if len(self.items) < self.max_items:
-            self.items.append(item)
-        else:
-            raise ValueError("Inventory is full")
-
-    def remove_item(self, item: Item):
-        self.items.remove(item)
-
-    def is_full(self) -> bool:
-        return len(self.items) >= self.max_items
+@dataclass
+class HeroClass:
+    class_name: str
+    description: str
+    base_stats: Stats
+    starting_item: Item
 
 
 class Hero(Character):

@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 class SceneTypes(Enum):
     BATTLE = "battle"
     RESTING_HUB = "resting_hub"
+    HERO_CREATION = "hero_creation"
 
 
 class Scene(ABC):

@@ -119,16 +119,57 @@ class Item(ABC):
 
 # ITEMS
 
+# STARTING ITEMS
+
+
+class AttackerStartingItem(Item):
+    def __init__(self):
+        super().__init__(
+            name="Baseball Bat",
+            description="A simple baseball bat. Increases attack by 5.",
+            item_type=ItemType.WEAPON,
+            rarity=Rarity.COMMON,
+        )
+
+    def boost_attack(self, current_attack: int) -> int:
+        return current_attack + 5
+
+
+class DefenderStartingItem(Item):
+    def __init__(self):
+        super().__init__(
+            name="Turtle Shell",
+            description="A turtle shell. Increases defense by 5.",
+            item_type=ItemType.ARMOR,
+            rarity=Rarity.COMMON,
+        )
+
+    def boost_defense(self, current_defense: int) -> int:
+        return current_defense + 5
+
+
+class FocusStartingItem(Item):
+    def __init__(self):
+        super().__init__(
+            name="Chewed Up Pen",
+            description="A chewed up pen. Increases focus by 5.",
+            item_type=ItemType.ACCESSORY,
+            rarity=Rarity.COMMON,
+        )
+
+    def boost_focus(self, current_focus: int) -> int:
+        return current_focus + 5
+
 
 # COMMON ITEMS
 
 
 # BASE STAT BOOSTS
-class BaseballBat(Item):
+class LaserPistol(Item):
     def __init__(self):
         super().__init__(
-            name="Baseball Bat",
-            description="A simple baseball bat. Increases attack by 10.",
+            name="Laser Pistol",
+            description="A laser pistol. Increases attack by 10.",
             item_type=ItemType.WEAPON,
             rarity=Rarity.COMMON,
         )
@@ -140,8 +181,8 @@ class BaseballBat(Item):
 class TurtleShell(Item):
     def __init__(self):
         super().__init__(
-            name="Turtle Shell",
-            description="A turtle shell. Increases defense by 10.",
+            name="Riot Shield",
+            description="A riot shield. Increases defense by 10.",
             item_type=ItemType.ARMOR,
             rarity=Rarity.COMMON,
         )
@@ -259,7 +300,7 @@ class AdrenalinePump(Item):
 
 # Instantiate items
 ALL_ITEMS: List[Item] = [
-    BaseballBat(),
+    LaserPistol(),
     TurtleShell(),
     AdderallBox(),
     HeartTransplant(),
