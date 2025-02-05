@@ -27,6 +27,7 @@ class Hero(Character):
     def __init__(
         self,
         name: str,
+        class_name: str,
         description: str,
         level: int,
         base_stats: Stats,
@@ -35,6 +36,7 @@ class Hero(Character):
         super().__init__(
             name=name, description=description, level=level, base_stats=base_stats
         )
+        self.class_name = class_name
         self.inventory = Inventory(max_items=max_items)
         self.discovered_item = False
 
@@ -99,19 +101,3 @@ class Hero(Character):
         print(f"Focus: {self.get_current_stats().focus}")
         print(f"Attack: {self.get_current_stats().attack}")
         print(f"Defense: {self.get_current_stats().defense}")
-        print(self.description)
-        print(
-            """
-      ,   A           {} 
-     / \, | ,        .--.
-    |    =|= >      /.--.\ 
-     \ /` | `       |====|
-      `   |         |`::`|
-          |     .-;`\..../`;-.  
-         /|\    /  |...::...|  \ 
-        / | \  |   /'''::'''\   | 
-       /  |  \  \   \   ::   /   /  
-      /   |   \ `-._\  ::  /_.-`  
-     /    |    \   `-;_::_;-` 
-"""
-        )

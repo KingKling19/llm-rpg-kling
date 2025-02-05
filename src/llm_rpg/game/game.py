@@ -21,6 +21,7 @@ class Game:
         self.is_running = True
         self.hero = Hero(
             name="",
+            class_name="",
             description="",
             level=1,
             base_stats=self.config.hero_base_stats,

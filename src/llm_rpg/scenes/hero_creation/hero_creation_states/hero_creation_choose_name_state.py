@@ -38,6 +38,7 @@ class HeroCreationChooseNameState(State):
 
     def update(self):
         self.display_name_prompt = False
+        self.display_state_transition_header = False
         if self.chosen_name and self.chosen_name.is_valid:
             self.scene.game.hero.name = self.chosen_name.name
             self.scene.change_state(HeroCreationStates.CHOOSE_CLASS)

@@ -34,26 +34,29 @@ class HeroCreationChooseClassState(State):
 
     def update(self):
         self.display_classes = False
+        self.display_state_transition_header = False
         if self.last_user_navigation_input.is_valid:
             chosen_class = self.navigation_class_mapping[
                 self.last_user_navigation_input.choice
             ]
             self.scene.game.hero.base_stats = chosen_class.base_stats
             self.scene.game.hero.description = chosen_class.description
+            self.scene.game.hero.class_name = chosen_class.class_name
             self.scene.game.hero.inventory.add_item(chosen_class.starting_item)
             self.scene.game.change_scene(SceneTypes.RESTING_HUB)
 
     def _render_classes(self):
-        print("Please select a class for your hero:")
+        print("Please select a class for your character:\n")
         for i, hero_class in enumerate(self.navigation_class_mapping.values()):
-            print(f"[{i + 1}] {hero_class.class_name}")
-            print(f"    {hero_class.description}")
+            print(f"[{i + 1}] Class: {hero_class.class_name}")
+            print(f"    Description: {hero_class.description}")
             print(
                 f"    Starting Item: {hero_class.starting_item.name}: {hero_class.starting_item.description}"
             )
+            print("")
 
     def _render_invalid_choice(self):
-        print("Invalid choice. Please try again.")
+        print("Invalid choice. Choose [1] [2] or [3]:")
 
     def render(self):
         if self.display_state_transition_header:

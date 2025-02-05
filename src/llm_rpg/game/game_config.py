@@ -37,12 +37,22 @@ class GameConfig:
             max_hp=self.game_config["hero"]["base_hero_stats"]["max_hp"],
         )
 
+    def _parse_stats(self, stats: dict) -> Stats:
+        return Stats(
+            attack=stats["attack"],
+            defense=stats["defense"],
+            focus=stats["focus"],
+            max_hp=stats["max_hp"],
+        )
+
     @property
     def attack_hero_class(self) -> HeroClass:
         return HeroClass(
             class_name=self.game_config["hero"]["classes"]["attack"]["class_name"],
             description=self.game_config["hero"]["classes"]["attack"]["description"],
-            base_stats=self.game_config["hero"]["classes"]["attack"]["base_stats"],
+            base_stats=self._parse_stats(
+                self.game_config["hero"]["classes"]["attack"]["base_stats"]
+            ),
             starting_item=AttackerStartingItem(),
         )
 
@@ -51,7 +61,9 @@ class GameConfig:
         return HeroClass(
             class_name=self.game_config["hero"]["classes"]["focus"]["class_name"],
             description=self.game_config["hero"]["classes"]["focus"]["description"],
-            base_stats=self.game_config["hero"]["classes"]["focus"]["base_stats"],
+            base_stats=self._parse_stats(
+                self.game_config["hero"]["classes"]["focus"]["base_stats"]
+            ),
             starting_item=FocusStartingItem(),
         )
 
@@ -60,7 +72,9 @@ class GameConfig:
         return HeroClass(
             class_name=self.game_config["hero"]["classes"]["defense"]["class_name"],
             description=self.game_config["hero"]["classes"]["defense"]["description"],
-            base_stats=self.game_config["hero"]["classes"]["defense"]["base_stats"],
+            base_stats=self._parse_stats(
+                self.game_config["hero"]["classes"]["defense"]["base_stats"]
+            ),
             starting_item=DefenderStartingItem(),
         )
 
@@ -142,12 +156,7 @@ class GameConfig:
 
     @property
     def base_enemy_stats(self) -> Stats:
-        return Stats(
-            attack=self.game_config["enemy"]["base_stats"]["attack"],
-            defense=self.game_config["enemy"]["base_stats"]["defense"],
-            focus=self.game_config["enemy"]["base_stats"]["focus"],
-            max_hp=self.game_config["enemy"]["base_stats"]["max_hp"],
-        )
+        return self._parse_stats(self.game_config["enemy"]["base_stats"])
 
     @property
     def creativity_word_overuse_threshold(self) -> int:

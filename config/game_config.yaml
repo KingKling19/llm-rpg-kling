@@ -9,7 +9,7 @@ hero:
   stats_level_up_amount: 5
   classes:
     attack:
-      class_name: "Gym Bro"
+      class_name: "Gym Bro 💪"
       description: "Good on the offensive, hits hard but thinks less."
       base_stats:
         attack: 10
@@ -17,7 +17,7 @@ hero:
         focus: 10
         max_hp: 5
     focus:
-      class_name: "Awkward Poet"
+      class_name: "Awkward Poet 📖"
       description: "Is able to deal damage by the sheer force of his words and imagination."
       base_stats:
         attack: 5
@@ -25,7 +25,7 @@ hero:
         focus: 15
         max_hp: 5
     defense:
-      class_name: "Doomsday Prepper"
+      class_name: "Doomsday Prepper 🛡️"
       description: "Survivalist focussed on defending himself and negating damage."
       base_stats:
         attack: 5

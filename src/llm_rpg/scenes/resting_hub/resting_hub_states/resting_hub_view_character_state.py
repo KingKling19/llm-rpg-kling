@@ -38,19 +38,26 @@ class RestingHubViewCharacterState(State):
 
     def _render_character(self):
         print(f"Name: {self.resting_hub_scene.game.hero.name}")
-        print(f"Level: {self.resting_hub_scene.game.hero.description}")
+        print(f"Level: {self.resting_hub_scene.game.hero.level}")
+        print(f"Class: {self.resting_hub_scene.game.hero.class_name}")
+
+        print(f"Description: {self.resting_hub_scene.game.hero.description}")
+        print("")
+        print("Stats")
         print(f"Attack: {self.resting_hub_scene.game.hero.get_current_stats().attack}")
         print(
             f"Defense: {self.resting_hub_scene.game.hero.get_current_stats().defense}"
         )
         print(f"Focus: {self.resting_hub_scene.game.hero.get_current_stats().focus}")
         print(f"HP: {self.resting_hub_scene.game.hero.get_current_stats().max_hp}")
-        print("Equiped items:")
+        print("")
+        print("Equipped Items")
         if self.resting_hub_scene.game.hero.inventory.items:
             for item in self.resting_hub_scene.game.hero.inventory.items:
                 print(f"  - {item.name} ({item.rarity.value}): {item.description}")
         else:
             print("No items equipped.")
+        print("")
 
     def _render_ask_next_action(self):
         print("")
