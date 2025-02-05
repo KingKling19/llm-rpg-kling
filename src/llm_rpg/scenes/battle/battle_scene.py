@@ -8,7 +8,6 @@ from llm_rpg.scenes.battle.battle_states.battle_states import BattleStates
 from llm_rpg.scenes.battle.battle_states.battle_end_state import BattleEndState
 from llm_rpg.scenes.battle.battle_states.battle_start_state import BattleStartState
 from llm_rpg.scenes.battle.battle_states.battle_turn_state import BattleTurnState
-from llm_rpg.systems.hero.hero import Hero
 from llm_rpg.systems.battle.battle_ai import BattleAI
 from llm_rpg.systems.battle.battle_log import BattleLog
 
@@ -27,14 +26,12 @@ class BattleScene(Scene):
     def __init__(
         self,
         game: Game,
-        hero: Hero,
         enemy: Enemy,
-        battle_ai: BattleAI,
     ):
         super().__init__(game=game, current_state=BattleStartState(self))
-        self.hero = hero
+        self.hero = self.game.hero
         self.enemy = enemy
-        self.battle_ai = battle_ai
+        self.battle_ai = BattleAI(llm=self.game.llm, debug=self.game.config.debug_mode)
         self.battle_log = BattleLog()
         self.creativity_tracker = CreativityTracker(
             word_overuse_threshold=game.config.creativity_word_overuse_threshold

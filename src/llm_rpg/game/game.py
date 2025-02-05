@@ -27,7 +27,7 @@ class Game:
             base_stats=self.config.hero_base_stats,
         )
         self.scene_factory = SceneFactory(self)
-        self.current_scene: Scene = self.scene_factory.get_hero_creation_scene()
+        self.current_scene: Scene = self.scene_factory.get_initial_scene()
         self.battles_won = 0
 
     def change_scene(self, scene_type: SceneTypes):
@@ -37,6 +37,10 @@ class Game:
             self.current_scene = self.scene_factory.get_resting_hub_scene()
         elif scene_type == SceneTypes.HERO_CREATION:
             self.current_scene = self.scene_factory.get_hero_creation_scene()
+        elif scene_type == SceneTypes.GAME_OVER:
+            self.current_scene = self.scene_factory.get_game_over_scene()
+        elif scene_type == SceneTypes.MAIN_MENU:
+            self.current_scene = self.scene_factory.get_main_menu_scene()
         else:
             raise ValueError(f"Tried to change to invalid scene: {scene_type}")
 

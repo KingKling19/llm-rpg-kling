@@ -14,6 +14,8 @@ class SceneTypes(Enum):
     BATTLE = "battle"
     RESTING_HUB = "resting_hub"
     HERO_CREATION = "hero_creation"
+    GAME_OVER = "game_over"
+    MAIN_MENU = "main_menu"
 
 
 class Scene(ABC):

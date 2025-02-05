@@ -26,8 +26,9 @@ class BattleTurnState(State):
     def _update_hero_turn(self):
         action_effect = self.battle_scene.battle_ai.determine_action_effect(
             proposed_action_attacker=self.proposed_hero_action.action,
-            attacking_character=self.battle_scene.hero,
-            defending_character=self.battle_scene.enemy,
+            hero=self.battle_scene.hero,
+            enemy=self.battle_scene.enemy,
+            is_hero_attacker=True,
             battle_log_string=self.battle_scene.battle_log.to_string_for_battle_ai(),
         )
 
@@ -73,8 +74,9 @@ class BattleTurnState(State):
         )
         action_effect = self.battle_scene.battle_ai.determine_action_effect(
             proposed_action_attacker=proposed_enemy_action,
-            attacking_character=self.battle_scene.enemy,
-            defending_character=self.battle_scene.hero,
+            hero=self.battle_scene.hero,
+            enemy=self.battle_scene.enemy,
+            is_hero_attacker=False,
             battle_log_string=self.battle_scene.battle_log.to_string_for_battle_ai(),
         )
         damage_calculation_result = (

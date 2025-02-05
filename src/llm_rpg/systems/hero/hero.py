@@ -96,8 +96,16 @@ class Hero(Character):
             )
 
     def render(self):
+        print("")
         print(f"🦸 {self.name} lvl {self.level}")
+        print(f"Class: {self.class_name}")
+        print(f"Description: {self.description}")
         print(f"HP: {self.get_current_stats().max_hp}")
         print(f"Focus: {self.get_current_stats().focus}")
         print(f"Attack: {self.get_current_stats().attack}")
         print(f"Defense: {self.get_current_stats().defense}")
+        print("")
+        print("Items:")
+        for item in self.inventory.items:
+            print(f"  - {item.name}")
+        print("")

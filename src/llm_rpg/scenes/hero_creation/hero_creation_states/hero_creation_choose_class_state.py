@@ -43,6 +43,7 @@ class HeroCreationChooseClassState(State):
             self.scene.game.hero.description = chosen_class.description
             self.scene.game.hero.class_name = chosen_class.class_name
             self.scene.game.hero.inventory.add_item(chosen_class.starting_item)
+            self.scene.game.hero.full_heal()
             self.scene.game.change_scene(SceneTypes.RESTING_HUB)
 
     def _render_classes(self):

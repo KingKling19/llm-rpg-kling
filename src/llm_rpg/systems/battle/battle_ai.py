@@ -6,7 +6,9 @@ from llm_rpg.llm.llm import LLM
 
 from typing import Annotated
 
-from llm_rpg.objects.character import Character
+from llm_rpg.objects.item import Item
+from llm_rpg.systems.battle.enemy import Enemy
+from llm_rpg.systems.hero.hero import Hero
 
 
 class ActionEffect(BaseModel):
@@ -42,17 +44,34 @@ class ActionEffect(BaseModel):
 
 
 class BattleAI:
-    def __init__(self, llm: LLM):
+    def __init__(self, llm: LLM, debug: bool = False):
         self.llm = llm
+        self.debug = debug
+
+    def _format_items(self, items: list[Item]) -> str:
+        return "\n".join([f"  - {item.name}: {item.description}" for item in items])
 
     def determine_action_effect(
         self,
         proposed_action_attacker: str,
-        attacking_character: Character,
-        defending_character: Character,
+        hero: Hero,
+        enemy: Enemy,
+        is_hero_attacker: bool,
         battle_log_string: str,
     ) -> ActionEffect:
         attempts = 0
+
+        items_hero = self._format_items(hero.inventory.items)
+        attacker_name = hero.name if is_hero_attacker else enemy.name
+        defender_name = enemy.name if is_hero_attacker else hero.name
+
+        attacker_description = (
+            hero.description if is_hero_attacker else enemy.description
+        )
+        defender_description = (
+            enemy.description if is_hero_attacker else hero.description
+        )
+
         while attempts < 3:
             prompt = dedent(
                 f"""
@@ -60,21 +79,24 @@ class BattleAI:
                 between two characters.
 
                 The characters are:
-                - {attacking_character.name}
-                - {defending_character.name}
+                - {attacker_name}
+                - {defender_name}
 
-                {attacking_character.name} is attacking {defending_character.name}.
+                {attacker_name} is attacking {defender_name}.
 
-                {attacking_character.name} description:
-                {attacking_character.description}
+                {attacker_name} description:
+                {attacker_description}
 
-                {defending_character.name} description:
-                {defending_character.description}
+                {defender_name} description:
+                {defender_description}
+
+                {hero.name} items in inventory:
+                {items_hero}
 
                 Battle history:
                 {battle_log_string}
 
-                Proposed action of {attacking_character.name}:
+                Proposed action of {attacker_name}:
                 {proposed_action_attacker}
 
                 You should determine what happens next. Take into account the battle history as
@@ -82,11 +104,20 @@ class BattleAI:
 
                 Also take into account the current HP and description of both characters.
 
+                Especially pay attention to the items of {hero.name} as {hero.name} should only be able to use items that are in his inventory.
+                Usage of other items is infeasible.
+                These items should also determine the effect of incoming attacks.
+
                 I need you to output the effect of the proposed action in the following JSON format:
             """
             )
             schema = json.dumps(ActionEffect.model_json_schema(), indent=2)
             prompt += schema
+
+            if self.debug:
+                print("////////////DEBUG BattleAI prompt////////////")
+                print(prompt)
+                print("////////////DEBUG BattleAI prompt////////////")
 
             try:
                 unscaled_output = self.llm.generate_structured_completion(

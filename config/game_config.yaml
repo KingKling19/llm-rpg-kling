@@ -12,10 +12,10 @@ hero:
       class_name: "Gym Bro 💪"
       description: "Good on the offensive, hits hard but thinks less."
       base_stats:
-        attack: 10
+        attack: 5
         defense: 5
         focus: 10
-        max_hp: 5
+        max_hp: 10
     focus:
       class_name: "Awkward Poet 📖"
       description: "Is able to deal damage by the sheer force of his words and imagination."
@@ -23,15 +23,15 @@ hero:
         attack: 5
         defense: 5
         focus: 15
-        max_hp: 5
+        max_hp: 10
     defense:
       class_name: "Doomsday Prepper 🛡️"
       description: "Survivalist focussed on defending himself and negating damage."
       base_stats:
         attack: 5
-        defense: 10
+        defense: 5
         focus: 10
-        max_hp: 5
+        max_hp: 10
 enemy:
   enemy_level_scaling:
     exp_growth_rate: 1.2
@@ -55,7 +55,7 @@ enemy:
     attack: 5
     defense: 5
     focus: 10
-    max_hp: 5
+    max_hp: 10
 damage_calculator:
   attack_scaling: 0.5
   defense_scaling: 0.25
