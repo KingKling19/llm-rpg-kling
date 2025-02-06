@@ -7,6 +7,7 @@ hero:
     focus: 10
     max_hp: 5
   stats_level_up_amount: 5
+  max_items: 3
   classes:
     attack:
       class_name: "Gym Bro 💪"

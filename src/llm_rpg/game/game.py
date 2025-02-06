@@ -25,6 +25,7 @@ class Game:
             description="",
             level=1,
             base_stats=self.config.hero_base_stats,
+            max_items=self.config.hero_max_items,
         )
         self.scene_factory = SceneFactory(self)
         self.current_scene: Scene = self.scene_factory.get_initial_scene()

@@ -31,7 +31,7 @@ class Hero(Character):
         description: str,
         level: int,
         base_stats: Stats,
-        max_items: int = 3,
+        max_items: int,
     ):
         super().__init__(
             name=name, description=description, level=level, base_stats=base_stats

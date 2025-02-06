@@ -161,3 +161,7 @@ class GameConfig:
     @property
     def creativity_word_overuse_threshold(self) -> int:
         return self.game_config["creativity_tracker"]["word_overuse_threshold"]
+
+    @property
+    def hero_max_items(self) -> int:
+        return self.game_config["hero"]["max_items"]
