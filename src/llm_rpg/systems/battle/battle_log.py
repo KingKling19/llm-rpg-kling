@@ -26,12 +26,12 @@ class BattleLog:
             )
         return battle_log_text
 
-    def get_string_of_last_2_events(self, debug_mode: bool):
+    def get_string_of_last_events(self, n_events: int, debug_mode: bool = False):
         if len(self.events) == 0:
             return ""
         string_repr = ""
-        last_2_events = self.events[-2:]
-        for i, event in enumerate(last_2_events):
+        last_n_events = self.events[-n_events:]
+        for i, event in enumerate(last_n_events):
             if event.is_hero_turn:
                 string_repr += "🦸 Your turn:\n"
             else:
@@ -56,6 +56,6 @@ class BattleLog:
                     f"{event.effect_description}\n\n"
                     f"{event.damage_calculation_result.to_string(is_hero_turn=event.is_hero_turn)}\n"
                 )
-            if i < len(last_2_events) - 1:
+            if i < len(last_n_events) - 1:
                 string_repr += "\n"
         return string_repr
