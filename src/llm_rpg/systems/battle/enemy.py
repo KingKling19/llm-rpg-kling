@@ -21,12 +21,14 @@ class Enemy(Character):
         base_stats: Stats,
         llm: LLM,
         archetype: EnemyArchetypes,
+        ascii_render: str,
     ):
         super().__init__(
             name=name, description=description, level=level, base_stats=base_stats
         )
         self.llm = llm
         self.archetype = archetype
+        self.ascii_render = ascii_render
 
     def get_current_stats(self) -> Stats:
         return self.base_stats
@@ -67,24 +69,4 @@ class Enemy(Character):
         print(f"HP: {self.get_current_stats().max_hp}")
         print(f"Attack: {self.get_current_stats().attack}")
         print(f"Defense: {self.get_current_stats().defense}")
-        print(
-            """
-                      ___====-_  _-====___
-                _--^^^#####//      \\#####^^^--_
-             _-^##########// (    ) \\##########^-_
-            -############//  |\^^/|  \\############-
-          _/############//   (@::@)   \\############\_
-         /#############((     \\//     ))#############
-        -###############\\    (oo)    //###############-
-       -#################\\  / "" \  //#################-
-      -###################\\/  .  \//###################-
-     _#/|##########/\######(   )######/\##########|\#_
-    |/ |#/\#/\#/\/  \#/\#|/\#|/\#  /\#/\#/\#/\| \|/|/
-    / / _/ /_/ |   |_/_/__/___/_/ | /_/ /_/ // //\ 
-    \/\/\/_/ |_/  _/ /_/ \__/  | /_/ /_/ /_/ /_/
-            /_/ |_/ /_/  /_/ | /_/ /_/ /_/ /_/ /
-           (_/   /_/ |_/(_/  /_/ /_/  /_/ /_/
-           (_/   (_/ (_/   (_/  (_/ (_/
-
-"""
-        )
+        print(self.ascii_render)

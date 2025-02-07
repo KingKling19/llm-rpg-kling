@@ -7,8 +7,9 @@ from llm_rpg.scenes.hero_creation.hero_creation_scene import HeroCreationScene
 from llm_rpg.scenes.main_menu.main_menu_scene import MainMenuScene
 from llm_rpg.scenes.resting_hub.resting_hub_scene import RestingHubScene
 from llm_rpg.scenes.scene import Scene
+from llm_rpg.systems.battle.enemy_generator import generate_enemy
 from llm_rpg.systems.battle.enemy_scaling import scale_enemy
-from llm_rpg.systems.battle.enemy import Enemy, EnemyArchetypes
+from llm_rpg.systems.battle.enemy import Enemy
 
 if TYPE_CHECKING:
     from llm_rpg.game.game import Game
@@ -22,14 +23,7 @@ class SceneFactory:
         return self.get_main_menu_scene()
 
     def _get_enemy(self) -> Enemy:
-        enemy = Enemy(
-            name="Zephyros",
-            description="A cunning and ancient dragon with scales that shimmer like the night sky",
-            level=1,
-            base_stats=self.game.config.base_enemy_stats,
-            llm=self.game.llm,
-            archetype=EnemyArchetypes.ATTACKER,
-        )
+        enemy = generate_enemy(game=self.game)
 
         scale_enemy(
             enemy=enemy, battles_won=self.game.battles_won, game_config=self.game.config

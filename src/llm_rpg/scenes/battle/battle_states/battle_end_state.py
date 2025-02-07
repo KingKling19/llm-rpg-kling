@@ -23,14 +23,13 @@ class BattleEndState(State):
 
         if not self.battle_scene.hero.is_dead():
             self.battle_scene.game.battles_won += 1
-            if self.battle_scene.game.battles_won % 2 == 0:
+            if self.battle_scene.game.battles_won % 2 == 1:
                 self.battle_scene.hero.discovered_item = True
-            if self.battle_scene.game.battles_won % 3 == 0:
+            if self.battle_scene.game.battles_won % 2 == 0:
                 self.battle_scene.hero.should_level_up = True
             self.battle_scene.hero.full_heal()
             self.battle_scene.game.change_scene(SceneTypes.RESTING_HUB)
         else:
-            # TODO: Implement this
             self.battle_scene.game.change_scene(SceneTypes.GAME_OVER)
 
     def _render_character_stats(self):
