@@ -31,4 +31,6 @@ class BattleStartState(State):
             render_state_transition_header("Battle Description")
         self._render_battle_number()
         self.battle_scene.hero.render()
+        print("---- VS ----")
+        print("")
         self.battle_scene.enemy.render()

@@ -100,6 +100,7 @@ class Hero(Character):
         print(f"🦸 {self.name} lvl {self.level}")
         print(f"Class: {self.class_name}")
         print(f"Description: {self.description}")
+        print("")
         print(f"HP: {self.get_current_stats().max_hp}")
         print(f"Focus: {self.get_current_stats().focus}")
         print(f"Attack: {self.get_current_stats().attack}")

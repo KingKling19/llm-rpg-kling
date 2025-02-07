@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from textwrap import dedent
 
 from llm_rpg.scenes.main_menu.main_menu_states.main_menu_states import MainMenuStates
 from llm_rpg.scenes.state import State
@@ -35,23 +36,24 @@ class MainMenuInfoState(State):
 
     def _render_game_info(self):
         print(
-            "You choose a character class and fight against increasing difficult enemies."
+            dedent(
+                """
+            You choose a character class and fight against increasingly difficult enemies.
+            You can freely type your actions and an LLM will judge the consequences.
+            LLM will judge your action based on the battle situation, your character class, and your items.
+            LLM will output: feasibility of action and potential damage.
+
+            Besides LLM-based damage, your character has the following attributes:
+            - Attack: influences damage dealt to enemies
+            - Defense: influences damage taken from enemies
+            - HP: how much damage you can take
+            - Focus: How many characters you can type in each turn
+
+            Choose an option:
+            [1] Back to main menu
+            """
+            )
         )
-        print(
-            "You can freely type your actions and an llm will judge the consequences."
-        )
-        print(
-            "LLM will judge your action based on the battle situation, your character class and your items"
-        )
-        print("LLM will output: feasiblity of action and potential damage")
-        print("Besides LLM based damage your character has following attributes:")
-        print("Attack: influences damage dealt to enemies")
-        print("Defense: influences damage taken from enemies")
-        print("HP: how much damage you can take")
-        print("Focus: How much characters you can type in each turn")
-        print("")
-        print("Choose an option:")
-        print("[1] Back to main menu")
 
     def _render_invalid_choice(self):
         print("Invalid choice. Choose [1]")

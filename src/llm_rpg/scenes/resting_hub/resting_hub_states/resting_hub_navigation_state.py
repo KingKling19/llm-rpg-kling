@@ -1,4 +1,5 @@
 from __future__ import annotations
+from textwrap import dedent
 from typing import TYPE_CHECKING
 from llm_rpg.scenes.resting_hub.resting_hub_states.resting_hub_states import (
     RestingHubStates,
@@ -49,7 +50,23 @@ class RestingHubNavigationState(State):
         if self.render_welcome_message:
             print("Welcome to the resting hub!")
             print(f"Battles won: {self.resting_hub_scene.game.battles_won}")
-            print("INSERT ASCII ART HERE")
+            print(
+                dedent(
+                    """
+            (                 ,&&&.
+             )                .,.&&
+            (  (              \=__/
+                )             ,'-'.
+          (    (  ,,      _.__|/ /|
+           ) /\ -         _|___/  |
+         (  // | (`'      ((  `'--|
+       _ -.;_/ \\--._      \\ \-._/.
+      (_;-// | \ \-'.\    <_,\_\`--'|
+      ( `.__ _  ___,')      <_,-'__,'
+      `'(_ )_)(_)_)'
+                """
+                )
+            )
             print("")
             print("What would you like to do?")
             print("[1] View Character")

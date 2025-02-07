@@ -7,7 +7,6 @@ from llm_rpg.scenes.state import State
 
 from typing import TYPE_CHECKING
 
-from llm_rpg.utils.rendering import render_state_transition_header
 from llm_rpg.utils.user_navigation_input import (
     UserNavigationInput,
     get_user_navigation_input,
@@ -37,8 +36,21 @@ class MainMenuNavigationState(State):
                 self.scene.change_state(MainMenuStates.INFO)
 
     def _render_title_screen(self):
-        print("Welcome to LLM RPG")
-        print("")
+        print(
+            """
+
+
+ ▄█        ▄█         ▄▄▄▄███▄▄▄▄           ▄████████    ▄███████▄    ▄██████▄  
+███       ███       ▄██▀▀▀███▀▀▀██▄        ███    ███   ███    ███   ███    ███ 
+███       ███       ███   ███   ███        ███    ███   ███    ███   ███    █▀  
+███       ███       ███   ███   ███       ▄███▄▄▄▄██▀   ███    ███  ▄███        
+███       ███       ███   ███   ███      ▀▀███▀▀▀▀▀   ▀█████████▀  ▀▀███ ████▄  
+███       ███       ███   ███   ███      ▀███████████   ███          ███    ███ 
+███▌    ▄ ███▌    ▄ ███   ███   ███        ███    ███   ███          ███    ███ 
+█████▄▄██ █████▄▄██  ▀█   ███   █▀         ███    ███  ▄████▀        ████████▀  
+▀         ▀                                ███    ███                           
+"""
+        )
         print("Choose an option:")
         print("[1] Start New Game")
         print("[2] Info")
@@ -47,10 +59,6 @@ class MainMenuNavigationState(State):
         print("Invalid choice. Choose [1] or [2]")
 
     def render(self):
-        if self.display_state_transition_header:
-            render_state_transition_header(
-                "Main Menu",
-            )
         if self.display_title_screen:
             self._render_title_screen()
         if (
