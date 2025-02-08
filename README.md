@@ -1,4 +1,16 @@
-# LLM-RPG
+
+ ```
+
+ ▄█        ▄█         ▄▄▄▄███▄▄▄▄           ▄████████    ▄███████▄    ▄██████▄  
+███       ███       ▄██▀▀▀███▀▀▀██▄        ███    ███   ███    ███   ███    ███ 
+███       ███       ███   ███   ███        ███    ███   ███    ███   ███    █▀  
+███       ███       ███   ███   ███       ▄███▄▄▄▄██▀   ███    ███  ▄███        
+███       ███       ███   ███   ███      ▀▀███▀▀▀▀▀   ▀█████████▀  ▀▀███ ████▄  
+███       ███       ███   ███   ███      ▀███████████   ███          ███    ███ 
+███▌    ▄ ███▌    ▄ ███   ███   ███        ███    ███   ███          ███    ███ 
+█████▄▄██ █████▄▄██  ▀█   ███   █▀         ███    ███  ▄████▀        ████████▀  
+▀         ▀                                ███    ███                           
+```
 
 LLM-RPG is intended to be a role-playing game that leverages large language models to create dynamic and engaging gameplay experiences. Currently it is still in the early stages of development and only has a battle scene implemented.
 
