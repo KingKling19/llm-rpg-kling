@@ -4,7 +4,7 @@ import re
 class CreativityTracker:
     def __init__(
         self,
-        word_overuse_threshold: int = 2,
+        word_overuse_threshold,
     ):
         self.words_used = {}
         self.stop_words = {

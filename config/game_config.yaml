@@ -1,0 +1,67 @@
+debug_mode: false
+llm_model: "llama-3.3-70b-versatile"
+hero:
+  base_hero_stats:
+    attack: 5
+    defense: 5
+    focus: 10
+    max_hp: 5
+  stats_level_up_amount: 5
+  max_items: 3
+  classes:
+    attack:
+      class_name: "Gym Bro 💪"
+      description: "Good on the offensive, hits hard but thinks less."
+      base_stats:
+        attack: 5
+        defense: 5
+        focus: 10
+        max_hp: 10
+    focus:
+      class_name: "Awkward Poet 📖"
+      description: "Is able to deal damage by the sheer force of his words and imagination."
+      base_stats:
+        attack: 5
+        defense: 5
+        focus: 10
+        max_hp: 10
+    defense:
+      class_name: "Doomsday Prepper 🛡️"
+      description: "Survivalist focussed on defending himself and negating damage."
+      base_stats:
+        attack: 5
+        defense: 5
+        focus: 10
+        max_hp: 10
+enemy:
+  enemy_level_scaling:
+    exp_growth_rate: 1.2
+    linear_growth_rate: 0.6
+    linear_scaling_factor: 0.8
+  leveling_stats_probs:
+    attacker:
+      attack: 0.7
+      defense: 0.2
+      max_hp: 0.1
+    defender:
+      attack: 0.1
+      defense: 0.7
+      max_hp: 0.2
+    tank:
+      attack: 0.1
+      defense: 0.2
+      max_hp: 0.7
+  stats_level_up_amount: 5
+  base_stats:
+    attack: 2
+    defense: 2
+    focus: 10
+    max_hp: 5
+damage_calculator:
+  attack_scaling: 0.5
+  defense_scaling: 0.25
+  random_factor_max: 1.05
+  random_factor_min: 0.95
+  llm_dmg_impact: 2
+creativity_tracker:
+  word_overuse_threshold: 2

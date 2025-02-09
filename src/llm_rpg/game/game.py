@@ -1,43 +1,49 @@
 from __future__ import annotations
+from llm_rpg.game.game_config import GameConfig
 from llm_rpg.llm.llm import GroqLLM
 from llm_rpg.llm.llm_cost_tracker import LLMCostTracker
-from llm_rpg.objects.character import Enemy, Hero, Stats
-from llm_rpg.scenes.battle.battle_ai import BattleAI
-from llm_rpg.scenes.battle.battle_scene import BattleScene
+from llm_rpg.scenes.factory import SceneFactory
+from llm_rpg.systems.hero.hero import Hero
 
 from typing import TYPE_CHECKING
+from llm_rpg.scenes.scene import SceneTypes
 
 if TYPE_CHECKING:
     from llm_rpg.scenes.scene import Scene
 
 
 class Game:
-    def __init__(self):
-
+    def __init__(self, config: GameConfig):
+        self.config = config
         self.llm = GroqLLM(
-            llm_cost_tracker=LLMCostTracker(),
+            llm_cost_tracker=LLMCostTracker(), model=self.config.llm_model
         )
-        self.current_scene: Scene | None = self.get_initial_scene()
         self.is_running = True
-
-    def get_initial_scene(self):
-        hero = Hero(
-            name="Thalor",
-            description="A fierce warrior with a mysterious past and unmatched swordsmanship",
-            stats=Stats(level=5, attack=10, defense=10, focus=20, hp=30),
+        self.hero = Hero(
+            name="",
+            class_name="",
+            description="",
+            level=1,
+            base_stats=self.config.hero_base_stats,
+            max_items=self.config.hero_max_items,
         )
-        enemy = Enemy(
-            name="Zephyros",
-            description="A cunning and ancient dragon with scales that shimmer like the night sky",
-            stats=Stats(level=5, attack=10, defense=10, focus=20, hp=30),
-            llm=self.llm,
-        )
+        self.scene_factory = SceneFactory(self)
+        self.current_scene: Scene = self.scene_factory.get_initial_scene()
+        self.battles_won = 0
 
-        battle_ai = BattleAI(llm=self.llm)
-        return BattleScene(self, hero, enemy, battle_ai)
-
-    def change_scene(self, scene_name: str):
-        self.current_scene = self.scenes[scene_name]
+    def change_scene(self, scene_type: SceneTypes):
+        if scene_type == SceneTypes.BATTLE:
+            self.current_scene = self.scene_factory.get_battle_scene()
+        elif scene_type == SceneTypes.RESTING_HUB:
+            self.current_scene = self.scene_factory.get_resting_hub_scene()
+        elif scene_type == SceneTypes.HERO_CREATION:
+            self.current_scene = self.scene_factory.get_hero_creation_scene()
+        elif scene_type == SceneTypes.GAME_OVER:
+            self.current_scene = self.scene_factory.get_game_over_scene()
+        elif scene_type == SceneTypes.MAIN_MENU:
+            self.current_scene = self.scene_factory.get_main_menu_scene()
+        else:
+            raise ValueError(f"Tried to change to invalid scene: {scene_type}")
 
     def run(self):
         # print initial scene

@@ -1,4 +1,16 @@
-# LLM-RPG
+
+ ```
+
+ ▄█        ▄█         ▄▄▄▄███▄▄▄▄           ▄████████    ▄███████▄    ▄██████▄  
+███       ███       ▄██▀▀▀███▀▀▀██▄        ███    ███   ███    ███   ███    ███ 
+███       ███       ███   ███   ███        ███    ███   ███    ███   ███    █▀  
+███       ███       ███   ███   ███       ▄███▄▄▄▄██▀   ███    ███  ▄███        
+███       ███       ███   ███   ███      ▀▀███▀▀▀▀▀   ▀█████████▀  ▀▀███ ████▄  
+███       ███       ███   ███   ███      ▀███████████   ███          ███    ███ 
+███▌    ▄ ███▌    ▄ ███   ███   ███        ███    ███   ███          ███    ███ 
+█████▄▄██ █████▄▄██  ▀█   ███   █▀         ███    ███  ▄████▀        ████████▀  
+▀         ▀                                ███    ███                           
+```
 
 LLM-RPG is intended to be a role-playing game that leverages large language models to create dynamic and engaging gameplay experiences. Currently it is still in the early stages of development and only has a battle scene implemented.
 
@@ -36,4 +48,19 @@ To start the game, run the following command:
 
 ```bash
 poetry run python -m llm_rpg
+```
+
+
+## Maintaining the codebase
+
+Install pre-commit hooks:
+
+```bash
+pre-commit install
+```
+
+Run tests:
+
+```bash
+poetry run pytest -s -v
 ```
