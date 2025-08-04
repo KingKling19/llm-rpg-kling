@@ -1,6 +1,6 @@
 debug_mode: false
 llm:
-  model: "llama3.1:8b"
+  model: "gemma3:4b"
   type: "ollama"
 hero:
   base_hero_stats:
@@ -17,11 +17,11 @@ hero:
       base_stats:
         attack: 5
         defense: 5
-        focus: 100
-        max_hp: 100
+        focus: 10
+        max_hp: 10
     focus:
       class_name: "Awkward Poet 📖"
-      description: "Is able to deal supernatural damage by the force of his imagination."
+      description: "Is able to deal damage by the sheer force of his words and imagination."
       base_stats:
         attack: 5
         defense: 5
@@ -58,7 +58,7 @@ enemy:
     attack: 2
     defense: 2
     focus: 10
-    max_hp: 200
+    max_hp: 5
 damage_calculator:
   attack_scaling: 0.5
   defense_scaling: 0.25
@@ -93,10 +93,13 @@ prompts:
     Proposed action of {attacker_name}:
     {proposed_action_attacker}
 
-    You should determine what happens next. Actions should have different effects depending on the history.
+    You should determine what happens next. Take into account the battle history as
+    actions should have different effects depending on the history.
 
-    It is infeasible for {hero_name} to use items not in his inventory.
-    Supernatural moves by {hero_name} are impossible unless the items or description of {hero_name} hints at it.
+    Also take into account the current HP and description of both characters.
+
+    Especially pay attention to the items of {hero_name} as {hero_name} should only be able to use items that are in his inventory.
+    Usage of other items is infeasible.
     
     Important: repeated actions by {attacker_name} should have reduced potential damage, look in the battle history for past actions.
     Vaguely worded actions should also have reduced potential damage as I want to promote precise or verbose actions.
@@ -122,6 +125,8 @@ prompts:
 
     HP of you, {self_name}: {self_max_hp}
     HP of {hero_name}: {hero_max_hp}
+
+    Never mention damage or hp in your action proposal.
     
-    Describe your next action very briefly in third person like a narrator would.
+    Describe your next action very briefly in third person like a narrator would. 
     Just describe what you want to do not the effects or results of the action.

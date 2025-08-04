@@ -204,6 +204,7 @@ def generate_enemy(game: Game) -> Enemy:
         level=1,
         base_stats=game.config.base_enemy_stats,
         llm=game.llm,
+        enemy_next_action_prompt=game.config.enemy_next_action_prompt,
         archetype=enemy_info.archetype,
         ascii_render=enemy_info.ascii_render,
     )
