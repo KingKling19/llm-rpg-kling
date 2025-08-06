@@ -83,7 +83,7 @@ class OllamaLLM(LLM):
     def __init__(
         self,
         llm_cost_tracker: LLMCostTracker,
-        model: str = "gemma3:4b",
+        model: str,
     ):
         self.model = model
         self.llm_cost_tracker = llm_cost_tracker

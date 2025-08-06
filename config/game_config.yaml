@@ -1,7 +1,11 @@
 debug_mode: false
+# outcomment if you want to use ollama
+#llm:
+#  model: "qwen3:4b"
+#  type: "ollama"
 llm:
-  model: "llama3.1:8b"
-  type: "ollama"
+  model: "llama-3.3-70b-versatile"
+  type: "groq"
 hero:
   base_hero_stats:
     attack: 5
@@ -17,11 +21,11 @@ hero:
       base_stats:
         attack: 5
         defense: 5
-        focus: 100
-        max_hp: 100
+        focus: 10
+        max_hp: 10
     focus:
       class_name: "Awkward Poet 📖"
-      description: "Is able to deal supernatural damage by the force of his imagination."
+      description: "Is able to deal damage by the sheer force of his words and imagination."
       base_stats:
         attack: 5
         defense: 5
@@ -58,7 +62,7 @@ enemy:
     attack: 2
     defense: 2
     focus: 10
-    max_hp: 200
+    max_hp: 5
 damage_calculator:
   attack_scaling: 0.5
   defense_scaling: 0.25
