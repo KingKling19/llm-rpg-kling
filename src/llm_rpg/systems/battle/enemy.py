@@ -1,5 +1,5 @@
 from enum import Enum
-from textwrap import dedent
+
 from llm_rpg.llm.llm import LLM
 from llm_rpg.objects.character import Character, Stats
 from llm_rpg.systems.hero.hero import Hero
@@ -22,6 +22,7 @@ class Enemy(Character):
         llm: LLM,
         archetype: EnemyArchetypes,
         ascii_render: str,
+        enemy_next_action_prompt: str,
     ):
         super().__init__(
             name=name, description=description, level=level, base_stats=base_stats
@@ -29,36 +30,22 @@ class Enemy(Character):
         self.llm = llm
         self.archetype = archetype
         self.ascii_render = ascii_render
+        self.enemy_next_action_prompt = enemy_next_action_prompt
 
     def get_current_stats(self) -> Stats:
         return self.base_stats
 
     def get_next_action(self, battle_log: BattleLog, hero: Hero):
-        battle_log_text = battle_log.to_string_for_battle_ai()
+        battle_log_string = battle_log.to_string_for_battle_ai()
 
-        prompt = dedent(
-            f"""
-            You are a video game character called {self.name} that is in a battle against an enemy called {hero.name}.
-            Try to come up with a natural action based on the battle history and the current HP of both characters.
-            
-            You should try to defeat the enemy or reduce their HP to 0.
-
-            Don't repeat the same action every turn.
-            
-            You have the following description:
-            {self.description}
-
-            The enemy, {hero.name}, has the following description:
-            {hero.description}
-
-            Current battle history:
-            {battle_log_text}
-
-            HP of you, {self.name}: {self.get_current_stats().max_hp}
-            HP of {hero.name}: {hero.get_current_stats().max_hp}
-            
-            Describe your next action very briefly in third person like a narrator would.
-            """
+        prompt = self.enemy_next_action_prompt.format(
+            self_name=self.name,
+            self_description=self.description,
+            self_max_hp=self.get_current_stats().max_hp,
+            hero_name=hero.name,
+            hero_description=hero.description,
+            hero_max_hp=hero.get_current_stats().max_hp,
+            battle_log_string=battle_log_string,
         )
 
         return self.llm.generate_completion(prompt)

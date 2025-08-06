@@ -1,5 +1,11 @@
 debug_mode: false
-llm_model: "llama-3.3-70b-versatile"
+# outcomment if you want to use ollama
+#llm:
+#  model: "qwen3:4b"
+#  type: "ollama"
+llm:
+  model: "llama-3.3-70b-versatile"
+  type: "groq"
 hero:
   base_hero_stats:
     attack: 5
@@ -65,3 +71,61 @@ damage_calculator:
   llm_dmg_impact: 2
 creativity_tracker:
   word_overuse_threshold: 2
+prompts:
+  battle_ai_effect_determination: |
+    You are a video game ai that determines the effect of proposed actions in a battle
+    between two characters.
+
+    The characters are:
+    - {attacker_name}
+    - {defender_name}
+
+    {attacker_name} is attacking {defender_name}.
+
+    {attacker_name} description:
+    {attacker_description}
+
+    {defender_name} description:
+    {defender_description}
+
+    {hero_name} items in inventory:
+    {items_hero}
+
+    Battle history:
+    {battle_log_string}
+
+    Proposed action of {attacker_name}:
+    {proposed_action_attacker}
+
+    You should determine what happens next. Actions should have different effects depending on the history.
+
+    It is infeasible for {hero_name} to use items not in his inventory.
+    Supernatural moves by {hero_name} are impossible unless the items or description of {hero_name} hints at it.
+    
+    Important: repeated actions by {attacker_name} should have reduced potential damage, look in the battle history for past actions.
+    Vaguely worded actions should also have reduced potential damage as I want to promote precise or verbose actions.
+
+    I need you to output the effect of the proposed action in the following JSON format:
+
+  enemy_next_action: |
+    You are a video game character called {self_name} that is in a battle against an enemy called {hero_name}.
+    Try to come up with a natural action based on the battle history and the current HP of both characters.
+    
+    You should try to defeat the enemy or reduce their HP to 0.
+
+    Don't repeat the same action every turn.
+    
+    You have the following description:
+    {self_description}
+
+    The enemy, {hero_name}, has the following description:
+    {hero_description}
+
+    Current battle history:
+    {battle_log_string}
+
+    HP of you, {self_name}: {self_max_hp}
+    HP of {hero_name}: {hero_max_hp}
+    
+    Describe your next action very briefly in third person like a narrator would.
+    Just describe what you want to do not the effects or results of the action.

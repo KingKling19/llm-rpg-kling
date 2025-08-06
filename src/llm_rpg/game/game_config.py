@@ -1,3 +1,4 @@
+from functools import cached_property
 import yaml
 
 from llm_rpg.objects.character import Stats
@@ -13,6 +14,8 @@ from llm_rpg.systems.battle.enemy_scaling import (
     LevelingAttributeProbs,
 )
 from llm_rpg.systems.hero.hero import HeroClass
+from llm_rpg.llm.llm import LLM, OllamaLLM, GroqLLM
+from llm_rpg.llm.llm_cost_tracker import LLMCostTracker
 
 
 class GameConfig:
@@ -20,15 +23,26 @@ class GameConfig:
         with open(config_path, "r") as file:
             self.game_config = yaml.safe_load(file)
 
-    @property
+    @cached_property
     def debug_mode(self) -> bool:
         return self.game_config["debug_mode"]
 
-    @property
-    def llm_model(self) -> str:
-        return self.game_config["llm_model"]
+    @cached_property
+    def llm(self) -> LLM:
+        if self.game_config["llm"]["type"] == "ollama":
+            return OllamaLLM(
+                llm_cost_tracker=LLMCostTracker(),
+                model=self.game_config["llm"]["model"],
+            )
+        elif self.game_config["llm"]["type"] == "groq":
+            return GroqLLM(
+                llm_cost_tracker=LLMCostTracker(),
+                model=self.game_config["llm"]["model"],
+            )
+        else:
+            raise ValueError(f"Unsupported LLM type: {self.game_config['llm']['type']}")
 
-    @property
+    @cached_property
     def hero_base_stats(self) -> Stats:
         return Stats(
             attack=self.game_config["hero"]["base_hero_stats"]["attack"],
@@ -45,7 +59,7 @@ class GameConfig:
             max_hp=stats["max_hp"],
         )
 
-    @property
+    @cached_property
     def attack_hero_class(self) -> HeroClass:
         return HeroClass(
             class_name=self.game_config["hero"]["classes"]["attack"]["class_name"],
@@ -56,7 +70,7 @@ class GameConfig:
             starting_item=AttackerStartingItem(),
         )
 
-    @property
+    @cached_property
     def focus_hero_class(self) -> HeroClass:
         return HeroClass(
             class_name=self.game_config["hero"]["classes"]["focus"]["class_name"],
@@ -67,7 +81,7 @@ class GameConfig:
             starting_item=FocusStartingItem(),
         )
 
-    @property
+    @cached_property
     def defense_hero_class(self) -> HeroClass:
         return HeroClass(
             class_name=self.game_config["hero"]["classes"]["defense"]["class_name"],
@@ -78,11 +92,11 @@ class GameConfig:
             starting_item=DefenderStartingItem(),
         )
 
-    @property
+    @cached_property
     def hero_stats_level_up_amount(self) -> int:
         return self.game_config["hero"]["stats_level_up_amount"]
 
-    @property
+    @cached_property
     def enemy_level_scaling(self) -> LevelScaling:
         return LevelScaling(
             exp_growth_rate=self.game_config["enemy"]["enemy_level_scaling"][
@@ -96,11 +110,11 @@ class GameConfig:
             ],
         )
 
-    @property
+    @cached_property
     def enemy_stats_level_up_amount(self) -> int:
         return self.game_config["enemy"]["stats_level_up_amount"]
 
-    @property
+    @cached_property
     def enemy_leveling_stats_probs(
         self,
     ) -> EnemyArchetypesLevelingAttributeProbs:
@@ -140,7 +154,7 @@ class GameConfig:
             ),
         )
 
-    @property
+    @cached_property
     def damage_calculation(self) -> DamageCalculationConfig:
         return DamageCalculationConfig(
             attack_scaling=self.game_config["damage_calculator"]["attack_scaling"],
@@ -154,14 +168,22 @@ class GameConfig:
             llm_dmg_impact=self.game_config["damage_calculator"]["llm_dmg_impact"],
         )
 
-    @property
+    @cached_property
     def base_enemy_stats(self) -> Stats:
         return self._parse_stats(self.game_config["enemy"]["base_stats"])
 
-    @property
+    @cached_property
     def creativity_word_overuse_threshold(self) -> int:
         return self.game_config["creativity_tracker"]["word_overuse_threshold"]
 
-    @property
+    @cached_property
     def hero_max_items(self) -> int:
         return self.game_config["hero"]["max_items"]
+
+    @cached_property
+    def battle_ai_effect_determination_prompt(self) -> str:
+        return self.game_config["prompts"]["battle_ai_effect_determination"]
+
+    @cached_property
+    def enemy_next_action_prompt(self) -> str:
+        return self.game_config["prompts"]["enemy_next_action"]

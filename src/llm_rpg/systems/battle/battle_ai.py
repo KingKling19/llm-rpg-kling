@@ -1,7 +1,5 @@
-import json
-from textwrap import dedent
 from pydantic import BaseModel, Field
-
+import json
 from llm_rpg.llm.llm import LLM
 
 from typing import Annotated
@@ -18,9 +16,8 @@ class ActionEffect(BaseModel):
             ge=0,
             le=10,
             description=(
-                "Represents how feasible the action is, ranging from 0 to 10. A value of 0 indicates the action is "
-                "completely infeasible, while a value of 10 indicates it is fully feasible. This should depend on the "
-                "history of the battle and the effect_description."
+                "How feasible the action is, ranging from 0 to 10. A value of 0 indicates the action is "
+                "completely infeasible, while a value of 10 indicates it is fully feasible."
             ),
         ),
     ]
@@ -30,22 +27,22 @@ class ActionEffect(BaseModel):
             ge=0,
             le=10,
             description=(
-                "Represents the potential damage the action can inflict, ranging from 0 to 10. A score of 0 means the action "
-                "causes no damage, whereas a score of 10 means it causes maximum possible damage. This should depend on the "
-                "history of the battle and the effect_description."
+                "Potential damage the action can inflict, ranging from 0 to 10. A score of 0 means the action "
+                "causes no damage, whereas a score of 10 means it causes maximum possible damage."
             ),
         ),
     ]
     effect_description: str = Field(
         description=(
-            "A single sentence brief description of the effect of the action. It should concretely, deterministically describe what happened"
+            "A single sentence brief description of the effect of the action. It should concretely, deterministically describe what happened. If the action is infeasible give the reason why."
         )
     )
 
 
 class BattleAI:
-    def __init__(self, llm: LLM, debug: bool = False):
+    def __init__(self, llm: LLM, effect_determination_prompt: str, debug: bool = False):
         self.llm = llm
+        self.effect_determination_prompt = effect_determination_prompt
         self.debug = debug
 
     def _format_items(self, items: list[Item]) -> str:
@@ -60,87 +57,27 @@ class BattleAI:
         proposed_action_attacker: str,
     ) -> str:
         items_hero = self._format_items(hero.inventory.items)
+        hero_name = hero.name
         if is_hero_attacker:
-            prompt = dedent(
-                f"""
-                You are a video game ai that determines the effect of proposed actions in a battle
-                between two characters.
-
-                The characters are:
-                - {hero.name}
-                - {enemy.name}
-
-                {hero.name} is attacking {enemy.name}.
-
-                {hero.name} description:
-                {hero.description}
-
-                {enemy.name} description:
-                {enemy.description}
-
-                {hero.name} items in inventory:
-                {items_hero}
-
-                Battle history:
-                {battle_log_string}
-
-                Proposed action of {hero.name}:
-                {proposed_action_attacker}
-
-                You should determine what happens next. Take into account the battle history as
-                actions should have different effects depending on the history.
-
-                Also take into account the current HP and description of both characters.
-
-                Especially pay attention to the items of {hero.name} as {hero.name} should only be able to use items that are in his inventory.
-                Usage of other items is infeasible.
-                
-                Important: repeated actions by {hero.name} should have reduced potential damage, look in the battle history for past actions.
-                Vaguely worded actions should also have reduced potential damage as I want to promote precise or verbose actions.
-
-                I need you to output the effect of the proposed action in the following JSON format:
-            """
-            )
-            return prompt
+            attacker_name = hero.name
+            defender_name = enemy.name
+            attacker_description = hero.description
+            defender_description = enemy.description
         else:
-            prompt = dedent(
-                f"""
-                You are a video game ai that determines the effect of proposed actions in a battle
-                between two characters.
-
-                The characters are:
-                - {hero.name}
-                - {enemy.name}
-
-                {enemy.name} is attacking {hero.name}.
-
-                {hero.name} description:
-                {hero.description}
-
-                {enemy.name} description:
-                {enemy.description}
-
-                {hero.name} items in inventory:
-                {items_hero}
-
-                Battle history:
-                {battle_log_string}
-
-                Proposed action of {enemy.name}:
-                {proposed_action_attacker}
-
-                You should determine what happens next. Take into account the battle history as
-                actions should have different effects depending on the history.
-
-                Also take into account the current HP and description of both characters.
-
-                Also pay attention to the items of {hero.name} as the damage of {enemy.name}
-                can be influenced by the items of {hero.name}.
-
-                I need you to output the effect of the proposed action in the following JSON format:
-            """
-            )
-            return prompt
+            attacker_name = enemy.name
+            defender_name = hero.name
+            attacker_description = enemy.description
+            defender_description = hero.description
+        return self.effect_determination_prompt.format(
+            attacker_name=attacker_name,
+            defender_name=defender_name,
+            attacker_description=attacker_description,
+            defender_description=defender_description,
+            hero_name=hero_name,
+            items_hero=items_hero,
+            battle_log_string=battle_log_string,
+            proposed_action_attacker=proposed_action_attacker,
+        )
 
     def determine_action_effect(
         self,
@@ -159,6 +96,7 @@ class BattleAI:
                 battle_log_string=battle_log_string,
                 proposed_action_attacker=proposed_action_attacker,
             )
+            # needs to be added for both groq and ollama else the field description is not used
             schema = json.dumps(ActionEffect.model_json_schema(), indent=2)
             prompt += schema
 

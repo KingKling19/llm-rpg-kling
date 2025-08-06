@@ -1,15 +1,14 @@
+```
 
- ```
-
- ▄█        ▄█         ▄▄▄▄███▄▄▄▄           ▄████████    ▄███████▄    ▄██████▄  
-███       ███       ▄██▀▀▀███▀▀▀██▄        ███    ███   ███    ███   ███    ███ 
-███       ███       ███   ███   ███        ███    ███   ███    ███   ███    █▀  
-███       ███       ███   ███   ███       ▄███▄▄▄▄██▀   ███    ███  ▄███        
-███       ███       ███   ███   ███      ▀▀███▀▀▀▀▀   ▀█████████▀  ▀▀███ ████▄  
-███       ███       ███   ███   ███      ▀███████████   ███          ███    ███ 
-███▌    ▄ ███▌    ▄ ███   ███   ███        ███    ███   ███          ███    ███ 
-█████▄▄██ █████▄▄██  ▀█   ███   █▀         ███    ███  ▄████▀        ████████▀  
-▀         ▀                                ███    ███                           
+▄█        ▄█         ▄▄▄▄███▄▄▄▄           ▄████████    ▄███████▄    ▄██████▄
+███       ███       ▄██▀▀▀███▀▀▀██▄        ███    ███   ███    ███   ███    ███
+███       ███       ███   ███   ███        ███    ███   ███    ███   ███    █▀
+███       ███       ███   ███   ███       ▄███▄▄▄▄██▀   ███    ███  ▄███
+███       ███       ███   ███   ███      ▀▀███▀▀▀▀▀   ▀█████████▀  ▀▀███ ████▄
+███       ███       ███   ███   ███      ▀███████████   ███          ███    ███
+███▌    ▄ ███▌    ▄ ███   ███   ███        ███    ███   ███          ███    ███
+█████▄▄██ █████▄▄██  ▀█   ███   █▀         ███    ███  ▄████▀        ████████▀
+▀         ▀                                ███    ███
 ```
 
 LLM-RPG is intended to be a role-playing game that leverages large language models to create dynamic and engaging gameplay experiences. Currently it is still in the early stages of development and only has a battle scene implemented.
@@ -35,13 +34,14 @@ LLM-RPG is intended to be a role-playing game that leverages large language mode
    poetry install
    ```
 
-3. Set up your environment variables. You need to set the `GROQ_API_KEY` to use the GroqLLM model. You can do this by creating a `.env` file in the `config` directory:
+3. Set up your environment variables. You need to set the `GROQ_API_KEY` to use a GroqLLM model. You can do this by creating a `.env` file in the `config` directory:
 
    ```plaintext
    GROQ_API_KEY=your_api_key_here
    ```
 
 You can get a Groq API key from [here](https://groq.com/). This gives you free tokens each day.
+
 ## Usage
 
 To start the game, run the following command:
@@ -50,6 +50,32 @@ To start the game, run the following command:
 poetry run python -m llm_rpg
 ```
 
+## Local LLMs with ollama
+
+Using local llms with ollama:
+
+1. Install ollama https://ollama.com
+
+2. Install a model, I would recommend qwen3 models.
+
+3. Start ollama
+
+4. In game_config.yaml, uncomment the ollama model section and comment the groq model. Remember to select the correct model name you installed.
+
+```bash
+llm:
+  model: "qwen3:4b"
+  type: "ollama"
+#llm:
+#  model: "llama-3.3-70b-versatile"
+#  type: "groq"
+```
+
+5. Run the game
+
+```bash
+poetry run python -m llm_rpg
+```
 
 ## Maintaining the codebase
 

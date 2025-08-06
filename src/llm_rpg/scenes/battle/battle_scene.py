@@ -31,7 +31,11 @@ class BattleScene(Scene):
         super().__init__(game=game, current_state=BattleStartState(self))
         self.hero = self.game.hero
         self.enemy = enemy
-        self.battle_ai = BattleAI(llm=self.game.llm, debug=self.game.config.debug_mode)
+        self.battle_ai = BattleAI(
+            llm=self.game.llm,
+            effect_determination_prompt=self.game.config.battle_ai_effect_determination_prompt,
+            debug=self.game.config.debug_mode,
+        )
         self.battle_log = BattleLog()
         self.creativity_tracker = CreativityTracker(
             word_overuse_threshold=game.config.creativity_word_overuse_threshold

@@ -33,12 +33,12 @@ class BattleLog:
         last_n_events = self.events[-n_events:]
         for i, event in enumerate(last_n_events):
             if event.is_hero_turn:
-                string_repr += "🦸 Your turn:\n"
+                string_repr += f"🦸 Your turn:\n {event.character_name} tried to "
             else:
                 string_repr += "👾 Enemy turn:\n"
             if debug_mode:
                 string_repr += (
-                    f"{event.character_name} tried to {event.proposed_action}\n\n"
+                    f"{event.proposed_action}\n\n"
                     f"LLM estimates:\n"
                     f"- feasibility: {event.damage_calculation_result.feasibility}\n"
                     f"- potential damage: {event.damage_calculation_result.potential_damage}\n\n"
@@ -48,7 +48,7 @@ class BattleLog:
                 )
             else:
                 string_repr += (
-                    f"{event.character_name} tried to {event.proposed_action}\n\n"
+                    f"{event.proposed_action}\n\n"
                     f"LLM estimates:\n"
                     f"- feasibility: {event.damage_calculation_result.feasibility}\n"
                     f"- potential damage: {event.damage_calculation_result.potential_damage}\n\n"

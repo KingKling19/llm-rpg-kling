@@ -1,7 +1,5 @@
 from __future__ import annotations
 from llm_rpg.game.game_config import GameConfig
-from llm_rpg.llm.llm import GroqLLM
-from llm_rpg.llm.llm_cost_tracker import LLMCostTracker
 from llm_rpg.scenes.factory import SceneFactory
 from llm_rpg.systems.hero.hero import Hero
 
@@ -15,9 +13,7 @@ if TYPE_CHECKING:
 class Game:
     def __init__(self, config: GameConfig):
         self.config = config
-        self.llm = GroqLLM(
-            llm_cost_tracker=LLMCostTracker(), model=self.config.llm_model
-        )
+        self.llm = config.llm
         self.is_running = True
         self.hero = Hero(
             name="",
