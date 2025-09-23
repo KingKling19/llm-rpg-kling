@@ -4,8 +4,11 @@ debug_mode: false
 #  model: "qwen3:4b"
 #  type: "ollama"
 llm:
-  model: "llama-3.3-70b-versatile"
-  type: "groq"
+  model: "gpt-4o-mini"
+  type: "openai"
+#llm:
+#  model: "llama-3.3-70b-versatile"
+#  type: "groq"
 hero:
   base_hero_stats:
     attack: 5
@@ -16,7 +19,7 @@ hero:
   max_items: 3
   classes:
     attack:
-      class_name: "Gym Bro 💪"
+      class_name: "Gym Bro"
       description: "Good on the offensive, hits hard but thinks less."
       base_stats:
         attack: 5
@@ -24,7 +27,7 @@ hero:
         focus: 10
         max_hp: 10
     focus:
-      class_name: "Awkward Poet 📖"
+      class_name: "Awkward Poet"
       description: "Is able to deal damage by the sheer force of his words and imagination."
       base_stats:
         attack: 5
@@ -32,7 +35,7 @@ hero:
         focus: 10
         max_hp: 10
     defense:
-      class_name: "Doomsday Prepper 🛡️"
+      class_name: "Doomsday Prepper"
       description: "Survivalist focussed on defending himself and negating damage."
       base_stats:
         attack: 5

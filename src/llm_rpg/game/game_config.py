@@ -14,13 +14,19 @@ from llm_rpg.systems.battle.enemy_scaling import (
     LevelingAttributeProbs,
 )
 from llm_rpg.systems.hero.hero import HeroClass
-from llm_rpg.llm.llm import LLM, OllamaLLM, GroqLLM
+from llm_rpg.llm.llm import LLM, OllamaLLM, OpenAILLM
+
+
+try:
+    from llm_rpg.llm.llm import GroqLLM
+except ImportError:
+    GroqLLM = None
 from llm_rpg.llm.llm_cost_tracker import LLMCostTracker
 
 
 class GameConfig:
     def __init__(self, config_path: str):
-        with open(config_path, "r") as file:
+        with open(config_path, "r", encoding="utf-8") as file:
             self.game_config = yaml.safe_load(file)
 
     @cached_property
@@ -35,7 +41,16 @@ class GameConfig:
                 model=self.game_config["llm"]["model"],
             )
         elif self.game_config["llm"]["type"] == "groq":
+            if GroqLLM is None:
+                raise ImportError(
+                    "GroqLLM requested but not available. Choose a supported LLM type."
+                )
             return GroqLLM(
+                llm_cost_tracker=LLMCostTracker(),
+                model=self.game_config["llm"]["model"],
+            )
+        elif self.game_config["llm"]["type"] in ("openai", "gpt", "chatgpt"):
+            return OpenAILLM(
                 llm_cost_tracker=LLMCostTracker(),
                 model=self.game_config["llm"]["model"],
             )

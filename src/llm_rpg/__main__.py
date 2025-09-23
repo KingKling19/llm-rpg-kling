@@ -4,6 +4,8 @@ from llm_rpg.game.game import Game
 from llm_rpg.game.game_config import GameConfig
 
 env_files = [
+    ".env",
+    "config/.env",
     "config/.env.secret",
 ]
 

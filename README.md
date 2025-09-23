@@ -34,13 +34,15 @@ LLM-RPG is intended to be a role-playing game that leverages large language mode
    poetry install
    ```
 
-3. Set up your environment variables. You need to set the `GROQ_API_KEY` to use a GroqLLM model. You can do this by creating a `.env` file in the `config` directory:
+3. Set up your environment variables in `config/.env.secret`.
 
-   ```plaintext
-   GROQ_API_KEY=your_api_key_here
-   ```
+   - For OpenAI (ChatGPT):
 
-You can get a Groq API key from [here](https://groq.com/). This gives you free tokens each day.
+     ```plaintext
+     OPENAI_API_KEY=your_openai_api_key_here
+     ```
+
+   You can get an OpenAI API key from the OpenAI dashboard.
 
 ## Usage
 
@@ -67,9 +69,25 @@ llm:
   model: "qwen3:4b"
   type: "ollama"
 #llm:
-#  model: "llama-3.3-70b-versatile"
-#  type: "groq"
+#  model: "gpt-4o-mini"
+#  type: "openai"
 ```
+
+## Using OpenAI (ChatGPT)
+
+1. Put your key in `config/.env.secret` as `OPENAI_API_KEY=...`.
+2. In `config/game_config.yaml`, set:
+
+   ```yaml
+   llm:
+     model: "gpt-4o-mini"   # or another OpenAI chat model
+     type: "openai"         # also accepts: "gpt" or "chatgpt"
+   ```
+3. Run the game:
+
+   ```bash
+   poetry run python -m llm_rpg
+   ```
 
 5. Run the game
 
