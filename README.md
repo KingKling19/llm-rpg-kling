@@ -24,7 +24,7 @@ LLM-RPG is intended to be a role-playing game that leverages large language mode
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/vossenwout/llm-rpg.git
+   git clone https://github.com/KingKling19/llm-rpg-kling.git
    cd llm-rpg
    ```
 
