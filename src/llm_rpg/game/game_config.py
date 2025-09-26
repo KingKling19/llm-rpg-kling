@@ -83,6 +83,9 @@ class GameConfig:
                 self.game_config["hero"]["classes"]["attack"]["base_stats"]
             ),
             starting_item=AttackerStartingItem(),
+            ascii_render=self.game_config["hero"]["classes"]["attack"].get(
+                "ascii_render", ""
+            ),
         )
 
     @cached_property
@@ -94,6 +97,9 @@ class GameConfig:
                 self.game_config["hero"]["classes"]["focus"]["base_stats"]
             ),
             starting_item=FocusStartingItem(),
+            ascii_render=self.game_config["hero"]["classes"]["focus"].get(
+                "ascii_render", ""
+            ),
         )
 
     @cached_property
@@ -105,6 +111,9 @@ class GameConfig:
                 self.game_config["hero"]["classes"]["defense"]["base_stats"]
             ),
             starting_item=DefenderStartingItem(),
+            ascii_render=self.game_config["hero"]["classes"]["defense"].get(
+                "ascii_render", ""
+            ),
         )
 
     @cached_property

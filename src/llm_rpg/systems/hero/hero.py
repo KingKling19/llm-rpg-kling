@@ -21,6 +21,7 @@ class HeroClass:
     description: str
     base_stats: Stats
     starting_item: Item
+    ascii_render: str = ""
 
 
 class Hero(Character):
@@ -32,6 +33,7 @@ class Hero(Character):
         level: int,
         base_stats: Stats,
         max_items: int,
+        ascii_render: str = "",
     ):
         super().__init__(
             name=name, description=description, level=level, base_stats=base_stats
@@ -39,6 +41,7 @@ class Hero(Character):
         self.class_name = class_name
         self.inventory = Inventory(max_items=max_items)
         self.discovered_item = False
+        self.ascii_render = ascii_render
 
     def dont_pick_up_item(self):
         self.discovered_item = False
@@ -100,6 +103,9 @@ class Hero(Character):
         print(f"🦸 {self.name} lvl {self.level}")
         print(f"Class: {self.class_name}")
         print(f"Description: {self.description}")
+        if self.ascii_render:
+            print("")
+            print(self.ascii_render)
         print("")
         print(f"HP: {self.get_current_stats().max_hp}")
         print(f"Focus: {self.get_current_stats().focus}")
