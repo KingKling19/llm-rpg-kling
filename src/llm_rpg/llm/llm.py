@@ -22,24 +22,30 @@ class LLM(ABC):
         pass
 
 
-class GroqLLM(LLM):
+
+class OpenAILLM(LLM):
     def __init__(
         self,
         llm_cost_tracker: LLMCostTracker,
-        model: str = "llama-3.3-70b-versatile",
+        model: str = "gpt-4o-mini",
     ):
-        if not os.environ.get("GROQ_API_KEY"):
-            raise ValueError("GROQ_API_KEY is not set")
-        self.client = openai.OpenAI(
-            base_url="https://api.groq.com/openai/v1",
-            api_key=os.environ.get("GROQ_API_KEY"),
-        )
+        if not os.environ.get("OPENAI_API_KEY"):
+            raise ValueError("OPENAI_API_KEY is not set")
+        # Uses official OpenAI endpoint by default
+        self.client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
         self.model = model
+        # Token pricing per 1M tokens. Update as needed if you use other models.
+        # Values are placeholders; adjust to current OpenAI pricing.
         self.pricing = {
-            "llama-3.3-70b-versatile": {
-                "input_token_price": 0.59 / 1000000,
-                "output_token_price": 0.79 / 1000000,
-            }
+            # Approximate pricing; please verify with OpenAI pricing page.
+            "gpt-4o-mini": {
+                "input_token_price": 0.15 / 1_000_000,
+                "output_token_price": 0.60 / 1_000_000,
+            },
+            "gpt-4o": {
+                "input_token_price": 5.00 / 1_000_000,
+                "output_token_price": 15.00 / 1_000_000,
+            },
         }
         self.llm_cost_tracker = llm_cost_tracker
 
@@ -51,14 +57,20 @@ class GroqLLM(LLM):
         self._calculate_completion_costs(response)
         return response.choices[0].message.content
 
-    def _calculate_completion_costs(self, response: openai.types.Completion):
-        input_tokens = response.usage.prompt_tokens
-        completion_tokens = response.usage.completion_tokens
+    def _calculate_completion_costs(self, response):
+        # Fallback to zero cost if pricing is missing for the model
+        input_tokens = (response.usage.prompt_tokens if response.usage else 0) or 0
+        completion_tokens = (
+            response.usage.completion_tokens if response.usage else 0
+        ) or 0
 
-        input_cost = input_tokens * self.pricing[self.model]["input_token_price"]
-        completion_cost = (
-            completion_tokens * self.pricing[self.model]["output_token_price"]
+        pricing = self.pricing.get(
+            self.model,
+            {"input_token_price": 0.0, "output_token_price": 0.0},
         )
+
+        input_cost = input_tokens * pricing["input_token_price"]
+        completion_cost = completion_tokens * pricing["output_token_price"]
 
         self.llm_cost_tracker.add_cost(
             input_tokens, completion_tokens, input_cost, completion_cost
@@ -67,11 +79,27 @@ class GroqLLM(LLM):
     def generate_structured_completion(
         self, prompt: str, output_model: BaseModel
     ) -> BaseModel:
-        response = self.client.chat.completions.create(
-            model=self.model,
-            messages=[{"role": "user", "content": prompt}],
-            response_format={"type": "json_object"},
-        )
+        schema = output_model.model_json_schema()
+        response_format = {
+            "type": "json_schema",
+            "json_schema": {
+                "name": output_model.__name__,
+                "schema": schema,
+            },
+        }
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[{"role": "user", "content": prompt}],
+                response_format=response_format,
+            )
+        except Exception:
+            # Fallback for models without json_schema support
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[{"role": "user", "content": prompt}],
+                response_format={"type": "json_object"},
+            )
         parsed_output = output_model.model_validate_json(
             response.choices[0].message.content
         )

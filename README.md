@@ -11,11 +11,11 @@
 ▀         ▀                                ███    ███
 ```
 
-LLM-RPG is intended to be a role-playing game that leverages large language models to create dynamic and engaging gameplay experiences. Currently it is still in the early stages of development and only has a battle scene implemented.
+LLM-RPG is intended to be a role-playing game that leverages large language models to create dynamic and engaging gameplay experiences. Currently it is still in the early stages of development and only has a wizard like battle scene implemented.
 
 ## Current / future features
 
-- **Dynamic Battles**: Engage in battles where both heroes and enemies use AI to determine actions and effects.
+- **Dynamic Battles**: Engage in battles where wizards and enemies use AI to determine actions and effects.
 - **Character Customization**: Define your hero's stats and abilities.
 - **AI-Powered Creativity**: Use creative language to influence battle outcomes.
 
@@ -24,7 +24,7 @@ LLM-RPG is intended to be a role-playing game that leverages large language mode
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/vossenwout/llm-rpg.git
+   git clone https://github.com/KingKling19/llm-rpg-kling.git
    cd llm-rpg
    ```
 
@@ -34,13 +34,15 @@ LLM-RPG is intended to be a role-playing game that leverages large language mode
    poetry install
    ```
 
-3. Set up your environment variables. You need to set the `GROQ_API_KEY` to use a GroqLLM model. You can do this by creating a `.env` file in the `config` directory:
+3. Set up your environment variables in `config/.env.secret`.
 
-   ```plaintext
-   GROQ_API_KEY=your_api_key_here
-   ```
+   - For OpenAI (ChatGPT):
 
-You can get a Groq API key from [here](https://groq.com/). This gives you free tokens each day.
+     ```plaintext
+     OPENAI_API_KEY=your_openai_api_key_here
+     ```
+
+   You can get an OpenAI API key from the OpenAI dashboard.
 
 ## Usage
 
@@ -67,9 +69,25 @@ llm:
   model: "qwen3:4b"
   type: "ollama"
 #llm:
-#  model: "llama-3.3-70b-versatile"
-#  type: "groq"
+#  model: "gpt-4o-mini"
+#  type: "openai"
 ```
+
+## Using OpenAI (ChatGPT)
+
+1. Put your key in `config/.env.secret` as `OPENAI_API_KEY=...`.
+2. In `config/game_config.yaml`, set:
+
+   ```yaml
+   llm:
+     model: "gpt-4o-mini"   # or another OpenAI chat model
+     type: "openai"         # also accepts: "gpt" or "chatgpt"
+   ```
+3. Run the game:
+
+   ```bash
+   poetry run python -m llm_rpg
+   ```
 
 5. Run the game
 

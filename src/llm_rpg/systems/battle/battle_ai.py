@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 import json
-from llm_rpg.llm.llm import LLM
+from llm_rpg.llm.llm import LLM, OpenAILLM
 
 from typing import Annotated
 
@@ -96,9 +96,16 @@ class BattleAI:
                 battle_log_string=battle_log_string,
                 proposed_action_attacker=proposed_action_attacker,
             )
-            # needs to be added for both groq and ollama else the field description is not used
+            prompt += (
+                "\nRespond with a JSON object containing the keys "
+                "\"feasibility\", \"potential_damage\", and "
+                "\"effect_description\". Feasibility and potential_damage "
+                "must be numbers between 0 and 10."
+            )
             schema = json.dumps(ActionEffect.model_json_schema(), indent=2)
-            prompt += schema
+            if not isinstance(self.llm, OpenAILLM):
+                # Groq and Ollama benefit from seeing the JSON schema directly; OpenAI structured output does not
+                prompt += "\n" + schema
 
             if self.debug:
                 print("////////////DEBUG BattleAI prompt////////////")
