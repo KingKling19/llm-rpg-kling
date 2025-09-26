@@ -11,11 +11,11 @@
 ▀         ▀                                ███    ███
 ```
 
-LLM-RPG is intended to be a role-playing game that leverages large language models to create dynamic and engaging gameplay experiences. Currently it is still in the early stages of development and only has a battle scene implemented.
+LLM-RPG is intended to be a role-playing game that leverages large language models to create dynamic and engaging gameplay experiences. Currently it is still in the early stages of development and only has a wizard like battle scene implemented.
 
 ## Current / future features
 
-- **Dynamic Battles**: Engage in battles where both heroes and enemies use AI to determine actions and effects.
+- **Dynamic Battles**: Engage in battles where wizards and enemies use AI to determine actions and effects.
 - **Character Customization**: Define your hero's stats and abilities.
 - **AI-Powered Creativity**: Use creative language to influence battle outcomes.
 
@@ -24,7 +24,7 @@ LLM-RPG is intended to be a role-playing game that leverages large language mode
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/vossenwout/llm-rpg.git
+   git clone https://github.com/KingKling19/llm-rpg-kling.git
    cd llm-rpg
    ```
 
