@@ -42,6 +42,7 @@ class HeroCreationChooseClassState(State):
             self.scene.game.hero.base_stats = chosen_class.base_stats
             self.scene.game.hero.description = chosen_class.description
             self.scene.game.hero.class_name = chosen_class.class_name
+            self.scene.game.hero.ascii_render = chosen_class.ascii_render
             self.scene.game.hero.inventory.add_item(chosen_class.starting_item)
             self.scene.game.hero.full_heal()
             self.scene.game.change_scene(SceneTypes.RESTING_HUB)
@@ -54,6 +55,11 @@ class HeroCreationChooseClassState(State):
             print(
                 f"    Starting Item: {hero_class.starting_item.name}: {hero_class.starting_item.description}"
             )
+            if hero_class.ascii_render:
+                print("    ASCII Art:")
+                ascii_lines = hero_class.ascii_render.splitlines()
+                for line in ascii_lines:
+                    print(f"        {line}")
             print("")
 
     def _render_invalid_choice(self):
